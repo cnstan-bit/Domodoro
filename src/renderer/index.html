@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BreakLock</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <div class="top-controls">
+        <label class="quick-language" for="quickLanguage">
+          <span>Language</span>
+          <select id="quickLanguage" name="quickLanguage">
+            <option value="zh-CN">中文</option>
+            <option value="en-US">English</option>
+          </select>
+        </label>
+      </div>
+
+      <section class="training-chamber" aria-label="调教官训练舱">
+        <aside class="officer-stage">
+          <div class="stage-grid"></div>
+          <p class="unit-mark">BREAKLOCK / DARK DISCIPLINE</p>
+          <div class="officer-frame">
+            <img
+              id="officerImage"
+              class="officer-image"
+              src="../assets/personas/discipline-officer.png"
+              alt="纪律调教官"
+              data-persona-image
+            />
+            <div class="officer-fallback" hidden data-persona-fallback>
+              <span>DISCIPLINE OFFICER</span>
+            </div>
+          </div>
+          <div class="officer-caption">
+            <span id="lockAuthorityLabel">LOCK AUTHORITY</span>
+            <strong><b id="personaName">纪律调教官</b> · <b id="personaStageLabel">待命凝视</b></strong>
+          </div>
+        </aside>
+
+        <section class="command-core">
+          <div class="status-rail">
+            <span id="phaseLabel">空闲</span>
+            <span id="statusSubline">训练舱待命</span>
+          </div>
+          <div class="timer-face">
+            <p id="hudCommand">站好，选一档训练。</p>
+            <strong id="timeLeft">--:--</strong>
+            <div class="lock-line"><span></span></div>
+          </div>
+          <p id="currentCommand" class="persona-line">站好，选一档训练。</p>
+
+          <div class="preset-grid">
+            <button class="preset-card" type="button" data-preset-id="short">
+              <small id="presetShortName">短训</small>
+              <strong id="presetShortTitle">20m</strong>
+              <span id="presetShortLine">先热身，别装死。</span>
+            </button>
+            <button class="preset-card selected" type="button" data-preset-id="medium">
+              <small id="presetMediumName">标准</small>
+              <strong id="presetMediumTitle">40m</strong>
+              <span id="presetMediumLine">标准训练，给我稳住。</span>
+            </button>
+            <button class="preset-card" type="button" data-preset-id="long">
+              <small id="presetLongName">深度</small>
+              <strong id="presetLongTitle">60m</strong>
+              <span id="presetLongLine">深度服从，别半路逃。</span>
+            </button>
+          </div>
+
+          <div class="actions">
+            <button id="startFocus" class="primary">接受训练</button>
+            <button id="snoozeFocus">延长 5 分钟</button>
+          </div>
+          <div id="decisionPanel" class="decision-panel" hidden>
+            <button id="continueAfterBreak" class="primary" type="button">继续下一轮</button>
+            <button id="finishDay" type="button">今天饶过你</button>
+            <button id="extendBreak" type="button">再恢复 5 分钟</button>
+          </div>
+          <p id="actionMessage" class="message"></p>
+        </section>
+
+        <aside class="discipline-panel">
+          <header>
+            <span id="todayDisciplineLabel">今日纪律</span>
+            <strong id="disciplineRank">冷启动</strong>
+          </header>
+          <div class="score-block">
+            <small id="scoreLabel">纪律积分</small>
+            <strong id="disciplineScore">0</strong>
+            <div class="reward-track"><span id="rewardProgress"></span></div>
+            <em id="rewardProgressLabel">0%</em>
+          </div>
+          <section class="unlock-preview">
+            <span id="personaArchiveLabel">角色档案</span>
+            <strong id="unlockPersonaName">绯夜典狱长</strong>
+            <div class="reward-track"><span id="unlockProgress"></span></div>
+            <small id="unlockPersonaScore">0/160</small>
+            <button type="button" disabled>
+              <span id="unlockPersonaState">未解锁</span>
+            </button>
+          </section>
+          <dl>
+            <div><dt id="focusSessionsLabel">完成训练</dt><dd id="focusSessions">0</dd></div>
+            <div><dt id="breaksCompletedLabel">合格休息</dt><dd id="breaksCompleted">0</dd></div>
+            <div><dt id="pausesUsedLabel">额外宽限</dt><dd id="pausesUsed">0</dd></div>
+            <div><dt id="bypassesLabel">失控记录</dt><dd id="bypasses">0</dd></div>
+          </dl>
+        </aside>
+      </section>
+
+      <form id="settingsForm" class="armory-panel">
+        <details id="advancedSettings">
+          <summary>
+            <span id="armoryTitle">装备室 / 高级调校</span>
+            <small id="armorySubtitle">套餐、遮罩、约束</small>
+          </summary>
+
+          <section class="armory-grid">
+            <div class="armory-group">
+              <h2 id="trainingPresetsTitle">训练套餐</h2>
+              <div class="fields three">
+                <label id="presetShortMinutesLabel">短训分钟<input name="presetShortMinutes" type="number" min="1" max="240" /></label>
+                <label id="presetMediumMinutesLabel">标准分钟<input name="presetMediumMinutes" type="number" min="1" max="240" /></label>
+                <label id="presetLongMinutesLabel">深度分钟<input name="presetLongMinutes" type="number" min="1" max="240" /></label>
+              </div>
+              <h2 id="manualTimerTitle">手动计时</h2>
+              <div class="fields four">
+                <label id="focusMinutesLabel">专注分钟<input name="focusMinutes" type="number" min="1" max="240" /></label>
+                <label id="shortBreakMinutesLabel">短休分钟<input name="shortBreakMinutes" type="number" min="1" max="120" /></label>
+                <label id="longBreakMinutesLabel">长休分钟<input name="longBreakMinutes" type="number" min="1" max="240" /></label>
+                <label id="longBreakEveryLabel">长休间隔<input name="longBreakEvery" type="number" min="1" max="12" /></label>
+              </div>
+            </div>
+
+            <div class="armory-group">
+              <h2 id="overlayEngineTitle">遮罩引擎</h2>
+              <div id="packList" class="pack-list"></div>
+              <label class="check-row">
+                <input id="enableCustomVideo" type="checkbox" />
+                <span id="customVideoLabel">启用自定义视频遮罩</span>
+              </label>
+              <label id="videoUrlLabel">视频直链<input name="videoUrl" type="url" placeholder="https://example.com/rest.webm" /></label>
+              <div class="fields two">
+                <label id="accentColorLabel">主色<input name="accentColor" type="color" /></label>
+                <label id="intensityLabel">遮罩强度
+                  <select name="intensity">
+                    <option value="hard">狠</option>
+                    <option value="normal">标准</option>
+                    <option value="light">轻</option>
+                  </select>
+                </label>
+              </div>
+              <label id="customWarningsLabel">自定义警告语<textarea name="customWarningLines" rows="3" placeholder="每行一句"></textarea></label>
+              <label class="check-row"><input name="soundEnabled" type="checkbox" /> <span id="soundEnabledLabel">启用音效</span></label>
+            </div>
+
+            <div class="armory-group">
+              <h2 id="personaRulesTitle">角色与约束</h2>
+              <label id="languageLabel">界面语言
+                <select name="language">
+                  <option value="zh-CN">中文</option>
+                  <option value="en-US">English</option>
+                </select>
+              </label>
+              <label id="visualModeLabel">视觉模式
+                <select name="visualMode">
+                  <option value="dark-training-chamber">暗黑训练舱</option>
+                  <option value="red-alert-hud">红色警戒 HUD</option>
+                </select>
+              </label>
+              <div class="fields two">
+                <label id="pauseLimitLabel">每日暂停/延长上限<input name="pauseLimitPerDay" type="number" min="0" max="20" /></label>
+                <label id="bypassPasswordLabel">设置/更新绕过密码<input name="bypassPasswordPlain" type="password" placeholder="留空则不修改" /></label>
+              </div>
+              <label class="check-row"><input name="startupEnabled" type="checkbox" /> <span id="startupLabel">开机自启动</span></label>
+              <button id="saveSettings" class="primary" type="submit">保存调校</button>
+            </div>
+          </section>
+        </details>
+      </form>
+    </main>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

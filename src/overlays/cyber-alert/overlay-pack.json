@@ -1,0 +1,12 @@
+{
+  "id": "cyber-alert",
+  "name": "赛博警报",
+  "type": "css-scene",
+  "assets": {},
+  "defaultText": [
+    "系统检测到大脑过热。",
+    "离开键盘，完成强制冷却。"
+  ],
+  "sound": "pulse",
+  "allowRandom": true
+}

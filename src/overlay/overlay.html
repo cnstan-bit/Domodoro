@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BreakLock Overlay</title>
+    <link rel="stylesheet" href="./overlay.css" />
+  </head>
+  <body>
+    <main id="overlayRoot" class="overlay-root">
+      <section class="scene">
+        <div id="mediaLayer" class="media-layer"></div>
+        <div class="hud-grid"></div>
+        <div class="lock-frame"></div>
+        <div id="ritualMessage" class="ritual-message" hidden></div>
+        <div id="whipSlash" class="whip-slash" aria-hidden="true"></div>
+        <div id="impactFlash" class="impact-flash" aria-hidden="true"></div>
+
+        <aside id="overlayOfficer" class="overlay-officer">
+          <img
+            id="overlayOfficerImage"
+            src="../assets/personas/discipline-officer-training.png"
+            alt="纪律调教官"
+            data-persona-image
+          />
+          <div class="overlay-officer-fallback" hidden data-persona-fallback>
+            DISCIPLINE OFFICER
+          </div>
+        </aside>
+
+        <section class="content">
+          <p id="themeName" class="theme-name"></p>
+          <span id="lockStatus" class="lock-status">SYSTEM LOCK / RECOVERY REQUIRED</span>
+          <h1 id="countdown">--:--</h1>
+          <div id="warningLines" class="warning-lines"></div>
+          <div class="progress"><span id="progressBar"></span></div>
+
+          <div id="decisionPanel" class="overlay-decision" hidden>
+            <button id="continueAfterBreak" type="button">继续下一轮</button>
+            <button id="finishDay" type="button">今天饶过你</button>
+            <button id="extendBreak" type="button">再恢复 5 分钟</button>
+          </div>
+
+          <form id="bypassForm" class="bypass">
+            <input name="password" type="password" placeholder="紧急绕过密码" autocomplete="off" />
+            <input name="reason" type="text" placeholder="必须填写绕过原因" autocomplete="off" />
+            <button id="bypassButton" type="submit">紧急绕过</button>
+          </form>
+          <p id="bypassMessage" class="bypass-message"></p>
+        </section>
+      </section>
+    </main>
+    <script src="./overlay.js"></script>
+  </body>
+</html>

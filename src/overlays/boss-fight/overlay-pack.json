@@ -1,0 +1,12 @@
+{
+  "id": "boss-fight",
+  "name": "Boss 战拦截",
+  "type": "css-scene",
+  "assets": {},
+  "defaultText": [
+    "疲劳 Boss 已出现。",
+    "休息结束前，不允许继续攻击任务。"
+  ],
+  "sound": "pulse",
+  "allowRandom": true
+}

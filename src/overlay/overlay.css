@@ -1,0 +1,563 @@
+:root {
+  color-scheme: dark;
+  --accent: #ff2a35;
+  --void: #030304;
+  --ice: #f4f7fb;
+  --muted: #a5adb8;
+  --gold: #d6a23a;
+  font-family: "Microsoft YaHei", "Source Han Sans SC", "Segoe UI", sans-serif;
+  background: var(--void);
+  color: var(--ice);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.overlay-root {
+  width: 100vw;
+  height: 100vh;
+  background: var(--void);
+}
+
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 6px),
+    linear-gradient(112deg, rgba(168, 15, 22, 0.34) 0 18%, transparent 18% 64%, rgba(214, 162, 58, 0.1) 64% 70%, transparent 70%),
+    #030304;
+}
+
+.scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent), transparent 54%), transparent),
+    repeating-linear-gradient(0deg, transparent 0 18px, rgba(244, 247, 251, 0.1) 18px 19px);
+  transform: translateX(-100%);
+}
+
+.lock-ritual .scene::after {
+  opacity: 1;
+  animation: ritual-scan 3s ease-out both;
+}
+
+.lock-ritual .lock-status::after {
+  content: " / LOCKING 3...2...1";
+  color: var(--gold);
+}
+
+.media-layer,
+.media-layer video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.media-layer {
+  background-size: cover;
+  background-position: center;
+  opacity: 0.34;
+  filter: saturate(0.75) contrast(1.16) brightness(0.54);
+}
+
+.media-layer video {
+  object-fit: cover;
+}
+
+.hud-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(244, 247, 251, 0.045) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgba(244, 247, 251, 0.035) 0 1px, transparent 1px 64px);
+  opacity: 0.8;
+}
+
+.lock-frame {
+  position: absolute;
+  inset: 32px;
+  border: 2px solid color-mix(in srgb, var(--accent), transparent 18%);
+  box-shadow:
+    inset 0 0 42px color-mix(in srgb, var(--accent), transparent 76%),
+    0 0 46px color-mix(in srgb, var(--accent), transparent 72%);
+  animation: lock-pulse 1.2s ease-in-out infinite;
+}
+
+.lock-frame::before,
+.lock-frame::after {
+  content: "";
+  position: absolute;
+  width: 110px;
+  height: 110px;
+  border-color: var(--gold);
+}
+
+.lock-frame::before {
+  top: -2px;
+  left: -2px;
+  border-top: 4px solid;
+  border-left: 4px solid;
+}
+
+.lock-frame::after {
+  right: -2px;
+  bottom: -2px;
+  border-right: 4px solid;
+  border-bottom: 4px solid;
+}
+
+.ritual-message {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 10vh;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border: 1px solid var(--gold);
+  background: rgba(3, 3, 4, 0.86);
+  color: var(--gold);
+  font-size: 18px;
+  font-weight: 900;
+  box-shadow: 0 0 28px rgba(214, 162, 58, 0.26);
+}
+
+.whip-slash,
+.impact-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.whip-slash::before,
+.whip-slash::after {
+  content: "";
+  position: absolute;
+  left: -12vw;
+  top: 47vh;
+  width: 124vw;
+  height: 5px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--accent), transparent);
+  box-shadow: 0 0 18px var(--accent), 0 0 34px rgba(214, 162, 58, 0.54);
+  transform: rotate(-13deg) scaleX(0);
+  transform-origin: 0 50%;
+}
+
+.whip-slash::after {
+  top: 50vh;
+  height: 2px;
+  opacity: 0.58;
+}
+
+.impact-flash {
+  background:
+    radial-gradient(circle at 42% 50%, rgba(214, 162, 58, 0.48), transparent 14%),
+    radial-gradient(circle at 60% 44%, rgba(255, 42, 53, 0.38), transparent 18%),
+    rgba(255, 255, 255, 0.08);
+}
+
+.overlay-officer {
+  position: absolute;
+  z-index: 2;
+  right: 2vw;
+  bottom: -3vh;
+  width: min(42vw, 620px);
+  height: 100vh;
+  display: grid;
+  place-items: end center;
+  pointer-events: none;
+}
+
+.overlay-officer img {
+  max-width: 100%;
+  max-height: 108%;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 0 42px color-mix(in srgb, var(--accent), transparent 48%))
+    drop-shadow(0 34px 54px rgba(0, 0, 0, 0.92));
+  transform-origin: 50% 86%;
+  animation: overlay-officer-idle 2.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.overlay-officer-fallback {
+  display: grid;
+  place-items: center;
+  width: 82%;
+  height: 82%;
+  border: 1px solid color-mix(in srgb, var(--accent), transparent 24%);
+  background:
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--accent), transparent 78%) 0 12px, transparent 12px 24px),
+    #0b0b0f;
+  color: #ffb4b9;
+  font-weight: 900;
+}
+
+.whip-lock .scene {
+  animation: ritual-impact-shake 180ms linear 10;
+}
+
+.whip-lock .overlay-officer {
+  animation: officer-whip-lunge 3200ms ease-out both;
+}
+
+.whip-lock .overlay-officer img {
+  animation: overlay-officer-attack 620ms cubic-bezier(0.16, 0.84, 0.16, 1) 820ms 4;
+}
+
+.whip-lock .whip-slash::before,
+.whip-lock .whip-slash::after {
+  animation: whip-cut 620ms cubic-bezier(0.2, 0.85, 0.12, 1) 820ms both;
+}
+
+.whip-lock .impact-flash {
+  animation: impact-flash 520ms ease-out 1120ms both;
+}
+
+.warning-snap .whip-slash::before,
+.warning-snap .whip-slash::after {
+  animation: whip-cut 360ms cubic-bezier(0.2, 0.85, 0.12, 1) both;
+}
+
+.warning-snap .impact-flash {
+  animation: impact-flash 340ms ease-out 120ms both;
+}
+
+.content {
+  position: absolute;
+  z-index: 3;
+  left: 7vw;
+  top: 50%;
+  width: min(52vw, 820px);
+  transform: translateY(-50%);
+  padding: 24px;
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(90deg, rgba(3, 3, 4, 0.92), rgba(3, 3, 4, 0.56));
+}
+
+.theme-name,
+.lock-status {
+  display: block;
+  margin: 0 0 8px;
+  color: #ffb4b9;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.lock-status {
+  color: var(--gold);
+  font-size: 13px;
+}
+
+h1 {
+  margin: 12px 0 0;
+  font-size: 152px;
+  line-height: 0.9;
+  font-family: "Cascadia Mono", "Consolas", monospace;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 34px color-mix(in srgb, var(--accent), transparent 36%);
+}
+
+.warning-lines {
+  min-height: 96px;
+  margin: 22px 0;
+}
+
+.warning-lines p {
+  margin: 8px 0;
+  color: var(--ice);
+  font-size: 32px;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.progress {
+  height: 14px;
+  border: 1px solid rgba(244, 247, 251, 0.25);
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.46);
+}
+
+.progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  transition: width 0.25s linear;
+}
+
+.overlay-decision,
+.bypass {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.overlay-decision {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 12px;
+  border: 1px solid rgba(214, 162, 58, 0.38);
+  border-radius: 8px;
+  background: rgba(214, 162, 58, 0.08);
+}
+
+.bypass {
+  grid-template-columns: 180px minmax(220px, 1fr) 122px;
+}
+
+.overlay-decision button,
+.bypass input,
+.bypass button {
+  min-height: 44px;
+  border: 1px solid rgba(244, 247, 251, 0.22);
+  border-radius: 6px;
+  background: rgba(3, 3, 4, 0.78);
+  color: var(--ice);
+  padding: 11px 12px;
+  font: inherit;
+}
+
+.overlay-decision button {
+  border-color: color-mix(in srgb, var(--accent), transparent 40%);
+  background: linear-gradient(180deg, rgba(168, 15, 22, 0.9), rgba(5, 5, 7, 0.92));
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.bypass button {
+  background: linear-gradient(180deg, var(--accent), #82080d);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.bypass-message {
+  min-height: 24px;
+  margin: 10px 0 0;
+  color: #ffb4b9;
+  font-weight: 900;
+}
+
+.bypass-denied .scene {
+  animation: denied-shake 180ms linear 3;
+}
+
+.bypass-denied .lock-frame {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 70px rgba(255, 42, 53, 0.42), 0 0 70px rgba(255, 42, 53, 0.44);
+}
+
+[data-theme="boss-fight"] .scene {
+  background:
+    repeating-linear-gradient(45deg, rgba(168, 15, 22, 0.18) 0 18px, transparent 18px 36px),
+    #050507;
+}
+
+[data-theme="drill-sergeant"] .scene {
+  background:
+    linear-gradient(120deg, rgba(214, 162, 58, 0.16), transparent 36%),
+    repeating-linear-gradient(135deg, rgba(241, 42, 53, 0.15) 0 18px, transparent 18px 36px),
+    #070707;
+}
+
+[data-theme="deep-space"] .scene {
+  background:
+    repeating-linear-gradient(0deg, rgba(244, 247, 251, 0.04) 0 1px, transparent 1px 18px),
+    linear-gradient(115deg, rgba(168, 15, 22, 0.26), transparent 46%, rgba(214, 162, 58, 0.08)),
+    #030304;
+}
+
+[data-theme="countdown-court"] .scene {
+  background:
+    linear-gradient(90deg, rgba(214, 162, 58, 0.14), transparent 30%, rgba(214, 162, 58, 0.1)),
+    #0a0502;
+}
+
+.intensity-light .lock-frame {
+  animation: none;
+  opacity: 0.58;
+}
+
+.intensity-normal .lock-frame {
+  opacity: 0.78;
+}
+
+@keyframes lock-pulse {
+  0%,
+  100% {
+    transform: scale(0.992);
+  }
+  50% {
+    transform: scale(1.008);
+  }
+}
+
+@keyframes officer-enter {
+  from {
+    transform: translateX(28px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes overlay-officer-idle {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-0.5deg) scale(1);
+  }
+  45% {
+    transform: translate3d(-9px, -8px, 0) rotate(1.2deg) scale(1.018);
+  }
+  70% {
+    transform: translate3d(5px, 2px, 0) rotate(-1deg) scale(1.006);
+  }
+}
+
+@keyframes overlay-officer-attack {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(-1deg) scale(1.03);
+  }
+  35% {
+    transform: translate3d(-28px, -6px, 0) rotate(-4deg) scale(1.085);
+  }
+  58% {
+    transform: translate3d(14px, 4px, 0) rotate(2.4deg) scale(1.045);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-1deg) scale(1.03);
+  }
+}
+
+@keyframes denied-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes ritual-scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  70% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes officer-whip-lunge {
+  0% {
+    transform: translateX(34vw) scale(0.96);
+    opacity: 0;
+  }
+  24% {
+    transform: translateX(0) scale(1.04);
+    opacity: 1;
+  }
+  36% {
+    transform: translateX(-2.8vw) scale(1.06) rotate(-1deg);
+  }
+  52%,
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes whip-cut {
+  0% {
+    opacity: 0;
+    transform: rotate(-13deg) scaleX(0);
+  }
+  25% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+    transform: rotate(-13deg) scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-13deg) scaleX(1);
+  }
+}
+
+@keyframes impact-flash {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes ritual-impact-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-5px, 2px);
+  }
+  75% {
+    transform: translate(5px, -2px);
+  }
+}
+
+@media (max-width: 980px) {
+  .overlay-officer {
+    right: -10vw;
+    opacity: 0.55;
+    width: 54vw;
+  }
+
+  .content {
+    left: 5vw;
+    width: 86vw;
+  }
+
+  h1 {
+    font-size: 104px;
+  }
+
+  .warning-lines p {
+    font-size: 26px;
+  }
+
+  .overlay-decision,
+  .bypass {
+    grid-template-columns: 1fr;
+  }
+}

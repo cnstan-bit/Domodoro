@@ -1,0 +1,12 @@
+{
+  "id": "deep-space",
+  "name": "深空故障",
+  "type": "css-scene",
+  "assets": {},
+  "defaultText": [
+    "生命维持系统进入低功耗模式。",
+    "请让大脑从任务轨道脱离。"
+  ],
+  "sound": "pulse",
+  "allowRandom": true
+}

@@ -1,0 +1,12 @@
+{
+  "id": "countdown-court",
+  "name": "倒计时法庭",
+  "type": "css-scene",
+  "assets": {},
+  "defaultText": [
+    "你被判处强制休息。",
+    "倒计时结束后恢复电脑使用权。"
+  ],
+  "sound": "pulse",
+  "allowRandom": true
+}

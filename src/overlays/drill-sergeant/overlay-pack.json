@@ -1,0 +1,12 @@
+{
+  "id": "drill-sergeant",
+  "name": "军规训练",
+  "type": "css-scene",
+  "assets": {},
+  "defaultText": [
+    "命令：离开工位。",
+    "休息不是奖励，是规程。"
+  ],
+  "sound": "pulse",
+  "allowRandom": true
+}
