@@ -244,7 +244,7 @@ function createSettingsWindow() {
     height: 760,
     minWidth: 860,
     minHeight: 660,
-    title: 'BreakLock',
+    title: 'Domodoro',
     icon: windowIcon(),
     backgroundColor: '#0b1020',
     webPreferences: {
@@ -504,7 +504,7 @@ function buildTrayMenu() {
   const phaseLabel = copy.phaseNames[state.phase] || state.phase;
   const label = state.phase === 'idle' ? phaseLabel : `${phaseLabel} · ${minutes}m`;
 
-  tray.setToolTip(`BreakLock - ${label}`);
+  tray.setToolTip(`Domodoro - ${label}`);
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: `${copy.tray.status}: ${label}`, enabled: false },
     { type: 'separator' },
@@ -569,7 +569,7 @@ function registerIpc() {
 }
 
 app.whenReady().then(() => {
-  app.setAppUserModelId('com.breaklock.app');
+  app.setAppUserModelId('com.domodoro.app');
   settingsStore = createSettingsStore(app.getPath('userData'));
   historyStore = createHistoryStore(app.getPath('userData'));
   setStartup(settingsStore.load().app.startupEnabled);

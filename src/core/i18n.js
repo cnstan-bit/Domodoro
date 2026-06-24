@@ -2,7 +2,7 @@ const { normalizeLanguage, personaLinesForLanguage } = require('./personaLines')
 
 const zhCN = Object.freeze({
   language: 'zh-CN',
-  appTitle: 'BreakLock',
+  appTitle: 'Domodoro',
   phaseNames: {
     idle: '空闲',
     focus: '专注中',
@@ -105,7 +105,7 @@ const zhCN = Object.freeze({
     }
   },
   warning: {
-    eyebrow: 'BREAKLOCK WARNING',
+    eyebrow: 'DOMODORO WARNING',
     title: '一分钟后强制休息',
     locked: '休息命令已下达。',
     finalTen: '最后十秒，手离开键盘。',
@@ -145,7 +145,7 @@ const zhCN = Object.freeze({
 
 const enUS = Object.freeze({
   language: 'en-US',
-  appTitle: 'BreakLock',
+  appTitle: 'Domodoro',
   phaseNames: {
     idle: 'Idle',
     focus: 'Focus',
@@ -248,7 +248,7 @@ const enUS = Object.freeze({
     }
   },
   warning: {
-    eyebrow: 'BREAKLOCK WARNING',
+    eyebrow: 'DOMODORO WARNING',
     title: 'Forced Break In One Minute',
     locked: 'Break order issued.',
     finalTen: 'Final ten seconds. Hands off the keyboard.',

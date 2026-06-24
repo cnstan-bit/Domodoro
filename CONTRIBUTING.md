@@ -1,6 +1,6 @@
 # Contributing
 
-BreakLock's core rule: keep the timer simple and make overlays extensible.
+Domodoro's core rule: keep the timer simple and make overlays extensible.
 
 ## Development
 

@@ -1,13 +1,15 @@
-# BreakLock | 强制休息遮罩番茄钟
+# Domodoro | 调教官式强制休息番茄钟
 
-**English:** BreakLock is a Windows-first Electron Pomodoro app that interrupts overfocus with full-screen, always-on-top break overlays and persona-driven feedback.
+![Domodoro poster](docs/assets/domodoro-poster.png)
 
-**中文：** BreakLock 是一款 Windows 优先的 Electron 番茄钟，用全屏置顶遮罩和角色化反馈强制打断过度专注，帮助你按时休息、避免疲劳循环。
+**English:** Domodoro is a Windows-first dominant Pomodoro timer that interrupts overfocus with full-screen, always-on-top break overlays and persona-driven feedback.
+
+**中文：** Domodoro 是一款 Windows 优先的调教官式番茄钟，用全屏置顶遮罩和角色化反馈强制打断过度专注，帮助你按时休息、避免疲劳循环。
 
 ## Project Title / 项目标题
 
-- **EN:** BreakLock: Enforced Break Overlay Pomodoro for Windows
-- **ZH:** BreakLock：Windows 强制休息遮罩番茄钟
+- **EN:** Domodoro: A Dominant Pomodoro Timer for Forced Breaks
+- **ZH:** Domodoro：调教官式强制休息番茄钟
 
 ## Short Description / 简介
 
@@ -85,9 +87,9 @@ Remote webpages, iframes, YouTube pages, and Bilibili pages are intentionally un
 
 ## Data & Limits
 
-BreakLock stores `settings.json` and `history.json` in Electron's `userData` directory. No cloud sync is included.
+Domodoro stores `settings.json` and `history.json` in Electron's `userData` directory. No cloud sync is included.
 
-BreakLock is a behavioral interrupt, not a system-level lock. It does not prevent Task Manager or system-level process termination.
+Domodoro is a behavioral interrupt, not a system-level lock. It does not prevent Task Manager or system-level process termination.
 
 ## License
 

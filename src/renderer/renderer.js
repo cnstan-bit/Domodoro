@@ -60,7 +60,7 @@ function minutesSeconds(ms) {
 function applyLanguage() {
   const ui = rendererCopy();
   if (document.documentElement) document.documentElement.lang = appData?.language || appData?.settings?.app?.language || 'zh-CN';
-  document.title = copy().appTitle || 'BreakLock';
+  document.title = copy().appTitle || 'Domodoro';
   $('.training-chamber')?.setAttribute?.('aria-label', ui.chamberLabel || '调教官训练舱');
 
   setText('#lockAuthorityLabel', ui.lockAuthority || 'LOCK AUTHORITY');

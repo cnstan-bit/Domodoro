@@ -19,7 +19,7 @@ function mmss(ms) {
 
 function render(state) {
   document.documentElement.lang = warningCopy.language || 'zh-CN';
-  setText('#warningEyebrow', warningCopy.warning?.eyebrow || 'BREAKLOCK WARNING');
+  setText('#warningEyebrow', warningCopy.warning?.eyebrow || 'DOMODORO WARNING');
   setText('#warningTitle', warningCopy.warning?.title || '一分钟后强制休息');
   const remaining = Math.min(WARNING_MS, Math.max(0, Number(state?.remainingMs || 0)));
   $('#warningCountdown').textContent = mmss(remaining);

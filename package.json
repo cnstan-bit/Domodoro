@@ -1,7 +1,7 @@
 {
-  "name": "breaklock",
+  "name": "domodoro",
   "version": "0.1.0",
-  "description": "A Windows-first enforced-break Pomodoro app with bilingual UI and extensible overlay packs.",
+  "description": "A dominant Pomodoro timer for forced breaks, bilingual UI, and extensible overlay packs.",
   "main": "src/main/main.js",
   "scripts": {
     "start": "electron .",
@@ -9,6 +9,7 @@
     "check": "npm test"
   },
   "keywords": [
+    "domodoro",
     "pomodoro",
     "electron",
     "adhd",
