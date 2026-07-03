@@ -6,7 +6,9 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test test/*.test.js",
-    "check": "npm test"
+    "check": "npm test",
+    "build": "electron-builder --dir",
+    "dist": "electron-builder --win nsis zip --publish never"
   },
   "keywords": [
     "domodoro",
@@ -19,6 +21,34 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^42.4.1"
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.domodoro.app",
+    "productName": "Domodoro",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "README.md",
+      "LICENSE",
+      "package.json"
+    ],
+    "win": {
+      "icon": "src/assets/breaklock-icon.ico",
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Domodoro"
+    }
   }
 }

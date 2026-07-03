@@ -32,6 +32,15 @@
 - Local-only settings and history.
 - Optional startup on login.
 
+## Download
+
+Windows builds are published on the GitHub Releases page.
+
+- Installer: `Domodoro Setup <version>.exe`
+- Portable archive: `Domodoro-<version>-win.zip`
+
+If no release is available yet, run from source with the commands below.
+
 ## 功能亮点
 
 - Windows 托盘番茄钟。
@@ -48,6 +57,15 @@
 - 设置和历史只保存在本地。
 - 支持开机自启动，默认关闭。
 
+## 下载
+
+Windows 版本会发布在 GitHub Releases 页面：
+
+- 安装包：`Domodoro Setup <version>.exe`
+- 便携压缩包：`Domodoro-<version>-win.zip`
+
+如果暂时没有 Release，可以先按下面的本地运行方式启动。
+
 ## Run Locally
 
 ```bash
@@ -55,11 +73,24 @@ npm install
 npm start
 ```
 
+## Build Windows App
+
+```bash
+npm run dist
+```
+
+Build artifacts are written to `release/`.
+
 ## Test
 
 ```bash
 npm test
 ```
+
+## Documentation
+
+- [Overlay Pack Guide](docs/OVERLAY_PACKS.md)
+- [Roadmap](docs/ROADMAP.md)
 
 ## Overlay Pack Interface
 

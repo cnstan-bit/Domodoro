@@ -207,7 +207,11 @@ function loadPacks(settings) {
 
 function setStartup(openAtLogin) {
   try {
-    app.setLoginItemSettings({ openAtLogin: Boolean(openAtLogin) });
+    app.setLoginItemSettings({
+      openAtLogin: Boolean(openAtLogin),
+      path: process.execPath,
+      args: app.isPackaged ? [] : [app.getAppPath()]
+    });
   } catch {
     // Some portable/dev contexts do not expose login-item settings.
   }
