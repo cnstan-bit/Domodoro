@@ -15,17 +15,27 @@ Domodoro's long-term focus is the enforced-break Overlay Engine: a simple timer 
 ## v0.2
 
 - First-run onboarding.
-- Safer default persona mode for broader audiences.
-- Import/export settings.
-- More built-in Overlay Packs.
-- Better multi-monitor placement controls.
+- Dual persona modes for public and adult visual styles.
+- Focus/recovery insights and balanced weekly scoring.
+- Restart-safe active timer state.
+- Optional Supabase squads and weekly share cards.
 
 ## v0.3
+
+- Cyber command center UI across Focus, Insights, Squad, and Armory.
+- Task intentions and focus/recovery analytics.
+- Restart-safe sessions and active-preset locking.
+- State-aware Windows tray navigation.
+- Optional privacy-first squads and weekly share cards.
+
+## v0.4
 
 - Overlay Pack gallery.
 - Pack validation CLI.
 - Theme preview inside settings.
 - Accessibility pass for contrast, keyboard navigation, and reduced motion.
+- Settings import/export.
+- Better multi-monitor placement controls.
 
 ## Help Wanted
 

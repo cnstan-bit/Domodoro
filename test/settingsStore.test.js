@@ -30,6 +30,10 @@ test('default settings include the discipline officer persona interface', () => 
 
 test('default settings include interface language', () => {
   assert.equal(DEFAULT_SETTINGS.app.language, 'zh-CN');
+  assert.equal(DEFAULT_SETTINGS.app.onboardingComplete, false);
+  assert.equal(DEFAULT_SETTINGS.persona.personaMode, 'safe');
+  assert.equal(DEFAULT_SETTINGS.analytics.dailyFocusGoalMinutes, 160);
+  assert.equal(DEFAULT_SETTINGS.social.syncSummaries, true);
 });
 
 test('saves partial settings while preserving defaults', () => {

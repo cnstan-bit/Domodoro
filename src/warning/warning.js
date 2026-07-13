@@ -1,5 +1,6 @@
 const WARNING_MS = 60 * 1000;
 let warningCopy = {};
+let personaMode = 'safe';
 
 function $(selector) {
   return document.querySelector(selector);
@@ -25,7 +26,9 @@ function render(state) {
   $('#warningCountdown').textContent = mmss(remaining);
   $('#warningProgress').style.width = `${Math.max(0, Math.min(100, (remaining / WARNING_MS) * 100))}%`;
   const personaImage = $('#warningPersonaImage');
-  const trainingAsset = state?.persona?.assets?.training || 'discipline-officer-training.png';
+  const trainingAsset = personaMode === 'safe'
+    ? 'ivory-instructor.png'
+    : state?.persona?.assets?.training || 'discipline-officer-training.png';
   if (personaImage && !personaImage.src.endsWith(trainingAsset)) {
     personaImage.src = `../assets/personas/${trainingAsset}`;
   }
@@ -46,6 +49,7 @@ function render(state) {
 
 window.breaklock.getInit().then((payload) => {
   warningCopy = payload.copy || {};
+  personaMode = payload.settings?.persona?.personaMode || 'safe';
   render(payload.state);
 });
 

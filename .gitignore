@@ -2,6 +2,7 @@ node_modules/
 dist/
 out/
 release/
+src/config/social-config.json
 .DS_Store
 npm-debug.log*
 *.local

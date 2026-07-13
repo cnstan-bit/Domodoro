@@ -2,9 +2,13 @@
 
 ![Domodoro poster](docs/assets/domodoro-poster.png)
 
+![Domodoro cyber command interface](docs/assets/domodoro-cyber-hud.png)
+
 **English:** Domodoro is a Windows-first dominant Pomodoro timer that interrupts overfocus with full-screen, always-on-top break overlays and persona-driven feedback.
 
 **中文：** Domodoro 是一款 Windows 优先的调教官式番茄钟，用全屏置顶遮罩和角色化反馈强制打断过度专注，帮助你按时休息、避免疲劳循环。
+
+**Current release / 当前版本：** `v0.3.0`
 
 ## Project Title / 项目标题
 
@@ -31,6 +35,9 @@
 - Daily pause/snooze limit.
 - Local-only settings and history.
 - Optional startup on login.
+- Crash-safe timer recovery after restart or sleep.
+- 7-day and 30-day focus/recovery analytics.
+- Privacy-first squad scoring and weekly share cards.
 
 ## Download
 
@@ -81,6 +88,17 @@ npm run dist
 
 Build artifacts are written to `release/`.
 
+## Optional Squad Backend
+
+Domodoro works fully offline. To enable email/GitHub sign-in and private squad leaderboards:
+
+1. Create a Supabase project and run `supabase/migrations/001_social.sql`.
+2. Copy `src/config/social-config.example.json` to `src/config/social-config.json`.
+3. Add the project URL and public anon key, then rebuild the app.
+4. Add `domodoro://auth/callback` to the Supabase redirect allow list and enable GitHub OAuth if required.
+
+Only daily summaries are synced. Task labels and bypass reasons stay local.
+
 ## Test
 
 ```bash
@@ -91,6 +109,7 @@ npm test
 
 - [Overlay Pack Guide](docs/OVERLAY_PACKS.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Squad Backend](docs/SOCIAL.md)
 
 ## Overlay Pack Interface
 

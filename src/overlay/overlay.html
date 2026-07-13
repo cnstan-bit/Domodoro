@@ -33,9 +33,15 @@
           <span id="lockStatus" class="lock-status">SYSTEM LOCK / RECOVERY REQUIRED</span>
           <h1 id="countdown">--:--</h1>
           <div id="warningLines" class="warning-lines"></div>
+          <ol id="recoverySteps" class="recovery-steps"></ol>
           <div class="progress"><span id="progressBar"></span></div>
 
           <div id="decisionPanel" class="overlay-decision" hidden>
+            <div class="outcome-switch" role="group" aria-label="任务完成情况">
+              <button type="button" data-outcome="done">已完成</button>
+              <button type="button" data-outcome="partial">部分完成</button>
+              <button type="button" data-outcome="missed">未完成</button>
+            </div>
             <button id="continueAfterBreak" type="button">继续下一轮</button>
             <button id="finishDay" type="button">今天饶过你</button>
             <button id="extendBreak" type="button">再恢复 5 分钟</button>

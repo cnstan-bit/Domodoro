@@ -1,6 +1,7 @@
 let payload;
 let state;
 let totalMs = 1;
+let selectedOutcome = '';
 
 let denialTimer;
 
@@ -93,6 +94,16 @@ function renderCountdown() {
   $('#progressBar').style.width = `${Math.max(0, Math.min(100, (remaining / totalMs) * 100))}%`;
   const decisionPanel = $('#decisionPanel');
   if (decisionPanel) decisionPanel.hidden = state.phase !== 'awaitingDecision';
+  const stepsNode = $('#recoverySteps');
+  if (stepsNode) {
+    const steps = payload?.language === 'en-US'
+      ? ['Stand up', 'Drink water', 'Look far away', 'Slow breathing']
+      : ['离开座位', '喝几口水', '远眺放松眼睛', '缓慢呼吸'];
+    const elapsedRatio = Math.max(0, Math.min(0.999, 1 - remaining / totalMs));
+    const activeStep = Math.floor(elapsedRatio * steps.length);
+    stepsNode.innerHTML = steps.map((step, index) => `<li class="${index === activeStep ? 'active' : ''}">${step}</li>`).join('');
+    stepsNode.hidden = state.phase === 'awaitingDecision';
+  }
   if (state.phase === 'awaitingDecision') {
     const warningLines = $('#warningLines');
     warningLines.replaceChildren();
@@ -179,7 +190,9 @@ window.breaklockOverlay.getPayload().then((nextPayload) => {
   state = payload.state;
   applyLanguage();
   const personaImage = $('#overlayOfficerImage');
-  const trainingAsset = state?.persona?.assets?.training || 'discipline-officer-training.png';
+  const trainingAsset = payload?.persona?.personaMode === 'safe'
+    ? 'ivory-instructor.png'
+    : state?.persona?.assets?.training || 'discipline-officer-training.png';
   if (personaImage) personaImage.src = `../assets/personas/${trainingAsset}`;
   totalMs = Math.max(1, state.breakMinutes * 60 * 1000);
   applyPack(payload.pack);
@@ -195,10 +208,12 @@ window.breaklock.onState((nextState) => {
 });
 
 $('#continueAfterBreak').addEventListener('click', async () => {
+  if (selectedOutcome) await window.breaklock.recordOutcome(selectedOutcome);
   await window.breaklock.continueAfterBreak();
 });
 
 $('#finishDay').addEventListener('click', async () => {
+  if (selectedOutcome) await window.breaklock.recordOutcome(selectedOutcome);
   await window.breaklock.finishDay();
 });
 
@@ -210,6 +225,13 @@ $('#extendBreak').addEventListener('click', async () => {
     renderCountdown();
   }
 });
+
+for (const button of document.querySelectorAll('[data-outcome]')) {
+  button.addEventListener('click', () => {
+    selectedOutcome = button.dataset.outcome;
+    for (const item of document.querySelectorAll('[data-outcome]')) item.classList.toggle('selected', item === button);
+  });
+}
 
 $('#bypassForm').addEventListener('submit', async (event) => {
   event.preventDefault();

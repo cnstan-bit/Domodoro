@@ -19,3 +19,8 @@ test('extra persona rotation assets are available', () => {
     assert.equal(fs.existsSync(assetPath), true);
   }
 });
+
+test('persona artwork is constrained to the visible workspace height', () => {
+  const styles = fs.readFileSync(path.join(__dirname, '../src/renderer/styles.css'), 'utf8');
+  assert.match(styles, /\.persona-portrait img\s*\{[^}]*height:\s*calc\(100vh - 112px\)/s);
+});

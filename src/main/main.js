@@ -1,8 +1,13 @@
+const fs = require('node:fs');
 const path = require('node:path');
-const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage } = require('electron');
+const { randomUUID } = require('node:crypto');
+const { app, BrowserWindow, Tray, Menu, ipcMain, screen, nativeImage, safeStorage, shell, dialog } = require('electron');
 
 const { createSettingsStore } = require('../core/settingsStore');
 const { createHistoryStore } = require('../core/historyStore');
+const { createSessionStateStore } = require('../core/sessionStateStore');
+const { trayActionIdsForPhase } = require('../core/trayRules');
+const { buildAnalytics } = require('../core/analyticsRules');
 const { selectOverlayPack, resolveOverlayPack } = require('../core/overlayEngine');
 const { loadOverlayPacks } = require('../core/overlayPacks');
 const { hashPassword, verifyPassword } = require('../core/password');
@@ -12,12 +17,16 @@ const { personaForSession, personaStageForPhase, personaUnlockPreview } = requir
 const { overlayRitualForPhase } = require('../core/overlayRitual');
 const { PRE_BREAK_WARNING_MS, shouldOpenPreBreakWarning, shouldResetPreBreakWarning } = require('../core/preBreakWarning');
 const { copyForLanguage, normalizeLanguage } = require('../core/i18n');
+const { createSocialService } = require('./socialService');
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
 
 let settingsStore;
 let historyStore;
+let sessionStateStore;
+let socialService;
 let tray;
+let trayMenu;
 let settingsWindow;
 let ticker;
 let isQuitting = false;
@@ -26,6 +35,7 @@ let currentOverlayPayload = null;
 let allowOverlayClose = false;
 let warningWindow;
 let warningShownForFocus = false;
+let pendingAuthCallback = null;
 
 const timerState = {
   phase: 'idle',
@@ -37,8 +47,20 @@ const timerState = {
   currentPackId: null,
   breakKind: null,
   selectedPresetId: 'medium',
-  activePersonaIndex: 0
+  activePersonaIndex: 0,
+  sessionId: null,
+  taskLabel: '',
+  taskCategory: 'other'
 };
+
+function persistTimerState() {
+  if (!sessionStateStore) return;
+  if (timerState.phase === 'idle') {
+    sessionStateStore.clear();
+    return;
+  }
+  sessionStateStore.save(timerState);
+}
 
 function currentLanguage() {
   return normalizeLanguage(settingsStore?.load?.().app?.language);
@@ -223,7 +245,9 @@ function getInitPayload() {
   const copy = copyForLanguage(language);
   const today = historyStore.getToday();
   const discipline = buildDisciplineProfile(settings, today);
+  const analytics = buildAnalytics(historyStore.load(), historyStore.getRange(30));
   return {
+    appVersion: app.getVersion(),
     settings,
     language,
     copy,
@@ -231,26 +255,40 @@ function getInitPayload() {
     personaLines: copy.personaLines,
     today,
     discipline,
+    analytics,
+    social: socialService?.getCachedState?.() || { configured: false, authenticated: false },
     unlockPreview: personaUnlockPreview(discipline.score),
     state: publicState()
   };
 }
 
-function createSettingsWindow() {
+function createSettingsWindow(route = 'focus') {
+  const targetRoute = ['focus', 'insights', 'squad', 'armory'].includes(route) ? route : 'focus';
   if (settingsWindow && !settingsWindow.isDestroyed()) {
     settingsWindow.show();
     settingsWindow.focus();
+    if (settingsWindow.webContents.isLoading()) {
+      settingsWindow.webContents.once('did-finish-load', () => settingsWindow?.webContents.send('app:navigate', targetRoute));
+    } else {
+      settingsWindow.webContents.send('app:navigate', targetRoute);
+    }
     return;
   }
 
   settingsWindow = new BrowserWindow({
-    width: 980,
-    height: 760,
-    minWidth: 860,
-    minHeight: 660,
+    width: 1280,
+    height: 800,
+    minWidth: 1024,
+    minHeight: 700,
     title: 'Domodoro',
     icon: windowIcon(),
-    backgroundColor: '#0b1020',
+    backgroundColor: '#08090b',
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#08090b',
+      symbolColor: '#f3f5f7',
+      height: 38
+    },
     webPreferences: {
       preload: appPaths().preload,
       nodeIntegration: false,
@@ -261,6 +299,8 @@ function createSettingsWindow() {
 
   settingsWindow.setMenuBarVisibility(false);
   settingsWindow.loadFile(appPaths().settingsHtml);
+  settingsWindow.webContents.once('did-finish-load', () => settingsWindow?.webContents.send('app:navigate', targetRoute));
+  settingsWindow.on('closed', () => { settingsWindow = null; });
 }
 
 function closeOverlayWindows() {
@@ -326,11 +366,15 @@ function resetToIdle() {
   timerState.breakMinutes = 0;
   timerState.currentPackId = null;
   timerState.breakKind = null;
+  timerState.sessionId = null;
+  timerState.taskLabel = '';
+  timerState.taskCategory = 'other';
+  persistTimerState();
   stopTickerIfIdle();
   broadcastState();
 }
 
-function beginFocus({ focusMinutes, selectedPresetId = timerState.selectedPresetId }) {
+function beginFocus({ focusMinutes, selectedPresetId = timerState.selectedPresetId, context = {} }) {
   if (isOverlayBlockingPhase()) return { ok: false, error: currentCopy().errors.finishCurrentBreak };
 
   timerState.phase = 'focus';
@@ -342,8 +386,20 @@ function beginFocus({ focusMinutes, selectedPresetId = timerState.selectedPreset
   timerState.breakKind = null;
   timerState.selectedPresetId = selectedPresetId;
   timerState.activePersonaIndex = timerState.focusSessionsCompleted;
+  timerState.sessionId = randomUUID();
+  timerState.taskLabel = String(context.taskLabel || '').trim().slice(0, 120);
+  timerState.taskCategory = String(context.taskCategory || 'other').trim().slice(0, 32) || 'other';
+  historyStore.recordSessionStart({
+    sessionId: timerState.sessionId,
+    startedAt: new Date(timerState.startedAt).toISOString(),
+    presetId: selectedPresetId,
+    taskLabel: timerState.taskLabel,
+    taskCategory: timerState.taskCategory,
+    plannedFocusMinutes: timerState.focusMinutes
+  });
   warningShownForFocus = false;
   closeWarningWindow();
+  persistTimerState();
   startTicker();
   return { ok: true, state: publicState() };
 }
@@ -356,20 +412,35 @@ function startFocus() {
   });
 }
 
-function startPreset(presetId) {
+function startPreset(presetId, context = {}) {
   const settings = settingsStore.save({ timer: { selectedPresetId: presetId } });
   const preset = getPreset(settings, presetId);
   return beginFocus({
     focusMinutes: preset.focusMinutes,
-    selectedPresetId: presetId
+    selectedPresetId: presetId,
+    context
   });
+}
+
+function createOverlayPayload(kind, settings, selectedPack, fallbackPack) {
+  const copy = copyForLanguage(settings.app.language);
+  return {
+    settings: settings.overlay,
+    pack: selectedPack,
+    fallbackPack,
+    language: copy.language,
+    copy,
+    personaLines: copy.personaLines,
+    persona: settings.persona,
+    ritual: overlayRitualForPhase(kind),
+    state: publicState()
+  };
 }
 
 function startBreak(kind) {
   closeWarningWindow();
   warningShownForFocus = false;
   const settings = settingsStore.load();
-  const copy = copyForLanguage(settings.app.language);
   const packs = loadPacks(settings);
   const selectedPack = resolveOverlayPack(selectOverlayPack(packs, settings), packs, settings);
   const fallbackPack = resolveOverlayPack(packs.find((pack) => pack.id === settings.overlay.fallbackPackId), packs, settings);
@@ -383,18 +454,8 @@ function startBreak(kind) {
   timerState.breakMinutes = minutes;
   timerState.currentPackId = selectedPack.id;
   timerState.breakKind = kind;
-
-  currentOverlayPayload = {
-    settings: settings.overlay,
-    pack: selectedPack,
-    fallbackPack,
-    language: copy.language,
-    copy,
-    personaLines: copy.personaLines,
-    persona: settings.persona,
-    ritual: overlayRitualForPhase(kind),
-    state: publicState()
-  };
+  persistTimerState();
+  currentOverlayPayload = createOverlayPayload(kind, settings, selectedPack, fallbackPack);
   createOverlayWindows(currentOverlayPayload);
   startTicker();
 }
@@ -404,11 +465,11 @@ function finishBreak({ bypassed = false, reason = '' } = {}) {
   const minutes = timerState.breakMinutes;
 
   if (bypassed) {
-    historyStore.recordBypass({ reason, packId });
+    historyStore.recordBypass({ reason, packId, sessionId: timerState.sessionId });
     closeOverlayWindows();
     resetToIdle();
   } else {
-    historyStore.recordBreakComplete({ minutes, packId });
+    historyStore.recordBreakComplete({ minutes, packId, sessionId: timerState.sessionId });
     const settings = settingsStore.load();
     settingsStore.save({
       persona: {
@@ -418,6 +479,7 @@ function finishBreak({ bypassed = false, reason = '' } = {}) {
     timerState.phase = breakCompletionPhase({ bypassed });
     timerState.startedAt = null;
     timerState.endsAt = null;
+    persistTimerState();
     if (currentOverlayPayload) currentOverlayPayload.state = publicState();
     clearInterval(ticker);
     ticker = null;
@@ -439,7 +501,15 @@ function tick() {
 
   if (timerState.phase === 'focus') {
     const settings = settingsStore.load();
-    historyStore.recordFocusComplete({ minutes: timerState.focusMinutes || settings.timer.focusMinutes });
+    historyStore.recordFocusComplete({
+      minutes: timerState.focusMinutes || settings.timer.focusMinutes,
+      sessionId: timerState.sessionId,
+      presetId: timerState.selectedPresetId,
+      taskLabel: timerState.taskLabel,
+      taskCategory: timerState.taskCategory,
+      startedAt: timerState.startedAt ? new Date(timerState.startedAt).toISOString() : undefined,
+      endedAt: new Date().toISOString()
+    });
     timerState.focusSessionsCompleted += 1;
     startBreak(nextBreakKind(timerState.focusSessionsCompleted, settings.timer.longBreakEvery));
     return;
@@ -473,11 +543,12 @@ function extendBreak() {
     return { ok: false, error: currentCopy().errors.pauseLimit };
   }
 
-  historyStore.recordPauseUsed({ reason: 'extend-break' });
+  historyStore.recordPauseUsed({ reason: 'extend-break', sessionId: timerState.sessionId });
   timerState.phase = timerState.breakKind || 'shortBreak';
   timerState.startedAt = Date.now();
   timerState.endsAt = Date.now() + FIVE_MINUTES_MS;
   timerState.breakMinutes = 5;
+  persistTimerState();
   if (currentOverlayPayload) currentOverlayPayload.state = publicState();
   startTicker();
   return { ok: true, state: publicState() };
@@ -494,8 +565,9 @@ function snoozeFocus() {
     return { ok: false, error: currentCopy().errors.pauseLimit };
   }
 
-  historyStore.recordPauseUsed({ reason: 'snooze-focus' });
+  historyStore.recordPauseUsed({ reason: 'snooze-focus', sessionId: timerState.sessionId });
   timerState.endsAt += FIVE_MINUTES_MS;
+  persistTimerState();
   broadcastState();
   return { ok: true, state: publicState() };
 }
@@ -509,29 +581,65 @@ function buildTrayMenu() {
   const label = state.phase === 'idle' ? phaseLabel : `${phaseLabel} · ${minutes}m`;
 
   tray.setToolTip(`Domodoro - ${label}`);
-  tray.setContextMenu(Menu.buildFromTemplate([
+  const actionHandlers = {
+    snooze: { label: copy.tray.snooze, click: snoozeFocus },
+    continue: { label: copy.tray.continue, click: continueAfterBreak },
+    finish: { label: copy.tray.finish, click: finishDay },
+    extend: { label: copy.tray.extend, click: extendBreak }
+  };
+  const phaseActions = trayActionIdsForPhase(timerState.phase).map((id) => actionHandlers[id]);
+  const template = [
     { label: `${copy.tray.status}: ${label}`, enabled: false },
-    { type: 'separator' },
-    { label: copy.tray.start, enabled: !isOverlayBlockingPhase(), click: startFocus },
-    { label: copy.tray.snooze, enabled: timerState.phase === 'focus', click: snoozeFocus },
-    { label: copy.tray.continue, enabled: isDecisionPhase(), click: continueAfterBreak },
-    { label: copy.tray.finish, enabled: isDecisionPhase(), click: finishDay },
-    { label: copy.tray.extend, enabled: isDecisionPhase(), click: extendBreak },
-    { label: copy.tray.settings, click: createSettingsWindow },
+    ...(phaseActions.length ? [...phaseActions, { type: 'separator' }] : [{ type: 'separator' }]),
+    { label: copy.tray.open, click: () => createSettingsWindow('focus') },
+    { label: copy.tray.insights, click: () => createSettingsWindow('insights') },
+    { label: copy.tray.armory, click: () => createSettingsWindow('armory') },
     { type: 'separator' },
     { label: copy.tray.quit, enabled: !isOverlayBlockingPhase(), click: () => { isQuitting = true; app.quit(); } }
-  ]));
+  ];
+  trayMenu = Menu.buildFromTemplate(template);
 }
 
 function registerIpc() {
   ipcMain.handle('app:get-init', () => getInitPayload());
   ipcMain.handle('timer:start-focus', () => startFocus());
-  ipcMain.handle('timer:start-preset', (_event, presetId) => startPreset(presetId));
+  ipcMain.handle('timer:start-preset', (_event, presetId, context) => startPreset(presetId, context));
   ipcMain.handle('timer:snooze-focus', () => snoozeFocus());
   ipcMain.handle('timer:continue-after-break', () => continueAfterBreak());
   ipcMain.handle('timer:finish-day', () => finishDay());
   ipcMain.handle('timer:extend-break', () => extendBreak());
   ipcMain.handle('overlay:get-payload', () => currentOverlayPayload);
+  ipcMain.handle('analytics:get-dashboard', (_event, days = 30) => (
+    buildAnalytics(historyStore.load(), historyStore.getRange(days))
+  ));
+  ipcMain.handle('history:record-outcome', (_event, outcome) => (
+    historyStore.recordOutcome({ sessionId: timerState.sessionId, outcome })
+  ));
+  ipcMain.handle('social:get-state', async () => socialService.getState());
+  ipcMain.handle('social:request-email-code', async (_event, email) => socialService.requestEmailCode(email));
+  ipcMain.handle('social:verify-email-code', async (_event, email, token) => socialService.verifyEmailCode(email, token));
+  ipcMain.handle('social:start-github', async () => socialService.startGithubLogin());
+  ipcMain.handle('social:sign-out', async () => socialService.signOut());
+  ipcMain.handle('social:update-profile', async (_event, displayName) => socialService.updateProfile(displayName));
+  ipcMain.handle('social:create-squad', async (_event, name) => socialService.createSquad(name));
+  ipcMain.handle('social:join-squad', async (_event, inviteCode) => socialService.joinSquad(inviteCode));
+  ipcMain.handle('social:sync-today', async () => {
+    const today = historyStore.getToday();
+    const analytics = buildAnalytics(historyStore.load(), [today]);
+    return socialService.syncDailySummary({ ...today, ...(analytics.days[0] || {}) });
+  });
+  ipcMain.handle('share:save-card', async (_event, dataUrl) => {
+    const match = String(dataUrl || '').match(/^data:image\/png;base64,(.+)$/);
+    if (!match) return { ok: false, error: 'Invalid image data.' };
+    const result = await dialog.showSaveDialog(settingsWindow, {
+      title: 'Save Domodoro weekly card',
+      defaultPath: `Domodoro-week-${new Date().toISOString().slice(0, 10)}.png`,
+      filters: [{ name: 'PNG image', extensions: ['png'] }]
+    });
+    if (result.canceled || !result.filePath) return { ok: false, canceled: true };
+    fs.writeFileSync(result.filePath, Buffer.from(match[1], 'base64'));
+    return { ok: true, filePath: result.filePath };
+  });
 
   ipcMain.handle('settings:save', (_event, payload) => {
     const nextPayload = { ...payload };
@@ -576,13 +684,52 @@ app.whenReady().then(() => {
   app.setAppUserModelId('com.domodoro.app');
   settingsStore = createSettingsStore(app.getPath('userData'));
   historyStore = createHistoryStore(app.getPath('userData'));
+  sessionStateStore = createSessionStateStore(app.getPath('userData'));
+  socialService = createSocialService({
+    dataDir: app.getPath('userData'),
+    safeStorage,
+    openExternal: (url) => shell.openExternal(url),
+    configPath: path.join(app.getAppPath(), 'src/config/social-config.json')
+  });
+  if (pendingAuthCallback) socialService.handleAuthCallback(pendingAuthCallback).catch(() => {});
+  Object.assign(timerState, sessionStateStore.load() || {});
   setStartup(settingsStore.load().app.startupEnabled);
   registerIpc();
 
   tray = new Tray(trayIcon());
-  tray.on('double-click', createSettingsWindow);
+  tray.on('click', () => createSettingsWindow('focus'));
+  tray.on('right-click', () => {
+    buildTrayMenu();
+    if (trayMenu) tray.popUpContextMenu(trayMenu);
+  });
   buildTrayMenu();
   createSettingsWindow();
+
+  if (timerState.phase === 'focus') {
+    startTicker();
+    if (remainingMs() <= 0) tick();
+  } else if (isOverlayBlockingPhase()) {
+    const settings = settingsStore.load();
+    const packs = loadPacks(settings);
+    const selectedPack = resolveOverlayPack(
+      packs.find((pack) => pack.id === timerState.currentPackId),
+      packs,
+      settings
+    );
+    const fallbackPack = resolveOverlayPack(
+      packs.find((pack) => pack.id === settings.overlay.fallbackPackId),
+      packs,
+      settings
+    );
+    currentOverlayPayload = createOverlayPayload(timerState.breakKind || 'shortBreak', settings, selectedPack, fallbackPack);
+    createOverlayWindows(currentOverlayPayload);
+    if (isBreakPhase()) {
+      startTicker();
+      if (remainingMs() <= 0) tick();
+    } else {
+      broadcastState();
+    }
+  }
 
   app.on('activate', createSettingsWindow);
 });
@@ -592,3 +739,28 @@ app.on('before-quit', (event) => {
 });
 
 app.on('window-all-closed', () => {});
+
+function receiveAuthCallback(url) {
+  if (!String(url || '').startsWith('domodoro://auth/')) return;
+  pendingAuthCallback = url;
+  socialService?.handleAuthCallback(url).then(() => {
+    if (settingsWindow && !settingsWindow.isDestroyed()) settingsWindow.webContents.send('social:changed');
+  }).catch(() => {});
+}
+
+if (process.defaultApp && process.argv[1]) {
+  app.setAsDefaultProtocolClient('domodoro', process.execPath, [path.resolve(process.argv[1])]);
+} else {
+  app.setAsDefaultProtocolClient('domodoro');
+}
+
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
+if (!hasSingleInstanceLock) {
+  app.quit();
+} else {
+  app.on('second-instance', (_event, argv) => {
+    receiveAuthCallback(argv.find((value) => String(value).startsWith('domodoro://')));
+    createSettingsWindow();
+  });
+}
+app.on('open-url', (event, url) => { event.preventDefault(); receiveAuthCallback(url); });

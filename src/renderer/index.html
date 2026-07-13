@@ -3,185 +3,157 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; media-src 'self' file: https:; style-src 'self'; script-src 'self'; connect-src https:;" />
     <title>Domodoro</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <div class="top-controls">
-        <label class="quick-language" for="quickLanguage">
-          <span>Language</span>
-          <select id="quickLanguage" name="quickLanguage">
-            <option value="zh-CN">中文</option>
-            <option value="en-US">English</option>
-          </select>
-        </label>
-      </div>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand-lockup">
+          <img src="../assets/breaklock-icon.png" alt="" />
+          <div><strong>DOMODORO <small id="appVersion">V0.3.0</small></strong><span>RECOVERY // COMMAND</span></div>
+        </div>
+        <nav class="primary-nav" aria-label="主导航">
+          <button class="nav-item active" type="button" data-route-target="focus"><i data-lucide="timer"></i><span data-ui="navFocus">专注</span></button>
+          <button class="nav-item" type="button" data-route-target="insights"><i data-lucide="chart-no-axes-combined"></i><span data-ui="navInsights">分析</span></button>
+          <button class="nav-item" type="button" data-route-target="squad"><i data-lucide="users"></i><span data-ui="navSquad">小队</span></button>
+          <button class="nav-item" type="button" data-route-target="armory"><i data-lucide="sliders-horizontal"></i><span data-ui="navArmory">装备室</span></button>
+        </nav>
+        <div class="header-actions">
+          <span id="headerPhase" class="phase-chip">待命</span>
+          <label class="quick-language" for="quickLanguage">
+            <span>LANGUAGE</span>
+            <select id="quickLanguage" name="quickLanguage">
+              <option value="zh-CN">中文</option>
+              <option value="en-US">English</option>
+            </select>
+          </label>
+        </div>
+      </header>
 
-      <section class="training-chamber" aria-label="调教官训练舱">
-        <aside class="officer-stage">
-          <div class="stage-grid"></div>
-          <p class="unit-mark">DOMODORO / DARK DISCIPLINE</p>
-          <div class="officer-frame">
-            <img
-              id="officerImage"
-              class="officer-image"
-              src="../assets/personas/discipline-officer.png"
-              alt="纪律调教官"
-              data-persona-image
-            />
-            <div class="officer-fallback" hidden data-persona-fallback>
-              <span>DISCIPLINE OFFICER</span>
-            </div>
-          </div>
-          <div class="officer-caption">
-            <span id="lockAuthorityLabel">LOCK AUTHORITY</span>
-            <strong><b id="personaName">纪律调教官</b> · <b id="personaStageLabel">待命凝视</b></strong>
-          </div>
-        </aside>
+      <main class="workspace">
+        <section class="route-view active" data-route="focus" aria-label="专注">
+          <div class="focus-layout">
+            <div class="threat-label" aria-hidden="true">THREAT LEVEL: ZERO</div>
+            <div class="discipline-stamp" aria-hidden="true"><b data-ui="disciplineStamp">纪律</b><span>DISCIPLINE</span></div>
+            <aside class="persona-stage" data-persona-mode="safe">
+              <div class="persona-meta">
+                <span id="personaModeBadge">CYBER OFFICER</span>
+                <strong><i>[</i> <span id="personaName">纪律调教官</span> <i>]</i></strong>
+                <small id="personaStageLabel">待命凝视</small>
+              </div>
+              <div class="persona-portrait">
+                <img id="officerImage" src="../assets/personas/discipline-officer.png" alt="纪律调教官" data-persona-image />
+                <div class="persona-fallback" hidden data-persona-fallback>DOMODORO OFFICER</div>
+              </div>
+              <div class="persona-footer"><span>// SYSTEM READY</span><b id="personaFooterLine">等待接管本轮节奏</b></div>
+            </aside>
 
-        <section class="command-core">
-          <div class="status-rail">
-            <span id="phaseLabel">空闲</span>
-            <span id="statusSubline">训练舱待命</span>
-          </div>
-          <div class="timer-face">
-            <p id="hudCommand">站好，选一档训练。</p>
-            <strong id="timeLeft">--:--</strong>
-            <div class="lock-line"><span></span></div>
-          </div>
-          <p id="currentCommand" class="persona-line">站好，选一档训练。</p>
+            <section class="focus-console">
+              <div class="console-status"><span><i data-lucide="crosshair"></i><b id="phaseLabel">空闲</b></span><small id="statusSubline" data-ui="statusStandby">训练舱待命</small></div>
+              <div class="timer-display">
+                <p id="hudCommand">选一轮，然后把结束时间交给我。</p>
+                <strong id="timeLeft">--:--</strong>
+                <div class="timer-progress"><span id="timerProgress"></span></div>
+              </div>
 
-          <div class="preset-grid">
-            <button class="preset-card" type="button" data-preset-id="short">
-              <small id="presetShortName">短训</small>
-              <strong id="presetShortTitle">20m</strong>
-              <span id="presetShortLine">先热身，别装死。</span>
-            </button>
-            <button class="preset-card selected" type="button" data-preset-id="medium">
-              <small id="presetMediumName">标准</small>
-              <strong id="presetMediumTitle">40m</strong>
-              <span id="presetMediumLine">标准训练，给我稳住。</span>
-            </button>
-            <button class="preset-card" type="button" data-preset-id="long">
-              <small id="presetLongName">深度</small>
-              <strong id="presetLongTitle">60m</strong>
-              <span id="presetLongLine">深度服从，别半路逃。</span>
-            </button>
-          </div>
+              <div class="intention-row">
+                <label for="taskLabel"><span data-ui="taskLabel">这轮完成什么？</span><input id="taskLabel" maxlength="120" placeholder="例如：完成提案第一版" data-ui-placeholder="taskPlaceholder" /></label>
+                <label for="taskCategory"><span data-ui="taskCategory">类型</span><select id="taskCategory"><option value="work" data-ui="categoryWork">工作</option><option value="study" data-ui="categoryStudy">学习</option><option value="creative" data-ui="categoryCreative">创作</option><option value="admin" data-ui="categoryAdmin">杂务</option><option value="other" data-ui="categoryOther">其他</option></select></label>
+              </div>
 
-          <div class="actions">
-            <button id="startFocus" class="primary">接受训练</button>
-            <button id="snoozeFocus">延长 5 分钟</button>
+              <div class="preset-heading"><span>SELECT FOCUS DURATION</span><i></i></div>
+              <div class="preset-switcher" role="group" aria-label="专注套餐">
+                <button type="button" data-preset-id="short"><small id="presetShortName">短训</small><strong id="presetShortTitle">20m</strong><span id="presetShortLine">快速进入状态</span></button>
+                <button class="selected" type="button" data-preset-id="medium"><small id="presetMediumName">标准</small><strong id="presetMediumTitle">40m</strong><span id="presetMediumLine">稳定推进核心任务</span></button>
+                <button type="button" data-preset-id="long"><small id="presetLongName">深度</small><strong id="presetLongTitle">60m</strong><span id="presetLongLine">深度工作，到点停手</span></button>
+              </div>
+
+              <p id="currentCommand" class="command-line">选好任务，我负责让你准时停下。</p>
+              <div class="focus-actions">
+                <button id="startFocus" class="primary-action" type="button"><i data-lucide="crosshair"></i><span data-ui="start">开始专注</span><b aria-hidden="true">››</b></button>
+                <button id="snoozeFocus" class="secondary-action" type="button" disabled><i data-lucide="clock-plus"></i><span data-ui="extend">延长 5 分钟</span></button>
+              </div>
+              <div id="decisionPanel" class="decision-panel" hidden>
+                <button id="continueAfterBreak" class="primary-action" type="button">继续下一轮</button>
+                <button id="finishDay" type="button">今天收工</button>
+                <button id="extendBreak" type="button">再恢复 5 分钟</button>
+              </div>
+              <p id="actionMessage" class="message" aria-live="polite"></p>
+            </section>
+
+            <aside class="today-rail">
+              <span class="rail-kicker">RECOVERY STATUS</span>
+              <header><div><span data-ui="today">今日状态</span><strong id="disciplineRank">冷启动</strong></div><b id="disciplineScore">0</b></header>
+              <div class="balance-meter"><span><b id="todayBalance">0</b>/100</span><div><i id="todayBalanceBar"></i></div><small data-ui="balanceScore">专注与恢复平衡分</small></div>
+              <dl class="today-metrics">
+                <div><dt data-ui="focusSessions">完成轮次</dt><dd id="focusSessions">0</dd></div>
+                <div><dt data-ui="restCompliance">休息完成率</dt><dd id="todayRestCompliance">0%</dd></div>
+                <div><dt data-ui="breaksCompleted">完成休息</dt><dd id="breaksCompleted">0</dd></div>
+                <div><dt data-ui="bypasses">紧急绕过</dt><dd id="bypasses">0</dd></div>
+              </dl>
+              <div class="reward-panel"><span data-ui="nextReward">下一角色档案</span><strong id="unlockPersonaName">绯夜典狱长</strong><div><i id="unlockProgress"></i></div><small id="unlockPersonaScore">0/160</small></div>
+              <button class="rail-link" type="button" data-route-target="insights"><span data-ui="viewInsights">查看完整分析</span><i data-lucide="arrow-right"></i></button>
+              <span id="pausesUsed" hidden>0</span>
+              <span id="rewardProgress" hidden></span>
+              <span id="rewardProgressLabel" hidden></span>
+            </aside>
           </div>
-          <div id="decisionPanel" class="decision-panel" hidden>
-            <button id="continueAfterBreak" class="primary" type="button">继续下一轮</button>
-            <button id="finishDay" type="button">今天饶过你</button>
-            <button id="extendBreak" type="button">再恢复 5 分钟</button>
-          </div>
-          <p id="actionMessage" class="message"></p>
         </section>
 
-        <aside class="discipline-panel">
-          <header>
-            <span id="todayDisciplineLabel">今日纪律</span>
-            <strong id="disciplineRank">冷启动</strong>
-          </header>
-          <div class="score-block">
-            <small id="scoreLabel">纪律积分</small>
-            <strong id="disciplineScore">0</strong>
-            <div class="reward-track"><span id="rewardProgress"></span></div>
-            <em id="rewardProgressLabel">0%</em>
+        <section class="route-view scroll-view" data-route="insights" aria-label="分析">
+          <div class="view-heading"><div><span>PERSONAL SIGNALS</span><h1 data-ui="insightsTitle">专注与恢复分析</h1><p data-ui="insightsSubtitle">看清什么时候效率最高，也看清什么时候该停。</p></div><div class="range-switch"><button class="active" type="button" data-range="7">7D</button><button type="button" data-range="30">30D</button></div></div>
+          <div class="metric-strip">
+            <article><span data-ui="focusTime">专注时间</span><strong id="metricFocusMinutes">0m</strong></article>
+            <article><span data-ui="restCompliance">休息完成率</span><strong id="metricCompliance">0%</strong></article>
+            <article><span data-ui="averageBalance">平均平衡分</span><strong id="metricBalance">0</strong></article>
+            <article><span data-ui="overfocusRisk">过度专注风险</span><strong id="metricRisk">0</strong></article>
           </div>
-          <section class="unlock-preview">
-            <span id="personaArchiveLabel">角色档案</span>
-            <strong id="unlockPersonaName">绯夜典狱长</strong>
-            <div class="reward-track"><span id="unlockProgress"></span></div>
-            <small id="unlockPersonaScore">0/160</small>
-            <button type="button" disabled>
-              <span id="unlockPersonaState">未解锁</span>
-            </button>
-          </section>
-          <dl>
-            <div><dt id="focusSessionsLabel">完成训练</dt><dd id="focusSessions">0</dd></div>
-            <div><dt id="breaksCompletedLabel">合格休息</dt><dd id="breaksCompleted">0</dd></div>
-            <div><dt id="pausesUsedLabel">额外宽限</dt><dd id="pausesUsed">0</dd></div>
-            <div><dt id="bypassesLabel">失控记录</dt><dd id="bypasses">0</dd></div>
-          </dl>
-        </aside>
-      </section>
+          <div class="insight-grid">
+            <section class="chart-panel"><header><h2 data-ui="trend">每日趋势</h2><span data-ui="trendHint">红色：专注分钟 · 绿色：休息完成率</span></header><canvas id="historyChart"></canvas></section>
+            <aside class="signal-panel"><span data-ui="weeklyScore">本周平衡积分</span><strong id="weeklyScore">0</strong><small>/ 500</small><div class="signal-divider"></div><h2 data-ui="coachSignal">本周信号</h2><p id="coachSignal">完成第一轮专注后，这里会给出恢复建议。</p></aside>
+          </div>
+          <section class="history-panel"><header><h2 data-ui="recentDays">最近记录</h2><span data-ui="privateLocal">详细任务仅保存在本机</span></header><div id="dayHistory" class="day-history"></div></section>
+        </section>
 
-      <form id="settingsForm" class="armory-panel">
-        <details id="advancedSettings">
-          <summary>
-            <span id="armoryTitle">装备室 / 高级调校</span>
-            <small id="armorySubtitle">套餐、遮罩、约束</small>
-          </summary>
+        <section class="route-view scroll-view" data-route="squad" aria-label="小队">
+          <div class="view-heading"><div><span>SQUAD PROTOCOL</span><h1 data-ui="squadTitle">小队纪律榜</h1><p data-ui="squadSubtitle">比较平衡分，不比较谁熬得更久。</p></div><span id="socialStatusBadge" class="status-badge">LOCAL ONLY</span></div>
+          <div class="squad-layout">
+            <section class="squad-intro"><span data-ui="privacyFirst">PRIVACY FIRST</span><h2 data-ui="squadIntroTitle">小队功能已准备好接入</h2><p data-ui="squadIntroBody">登录后可加入最多 12 人的小队。只同步每日汇总，不上传任务名称或绕过原因。</p><div class="squad-actions"><button id="socialConnect" class="primary-action" type="button"><i data-lucide="cloud"></i><span data-ui="connectCloud">连接 Supabase</span></button><button id="exportShareCard" type="button"><i data-lucide="image-down"></i><span data-ui="shareCard">生成本周分享卡</span></button></div>
+              <div id="socialAuthPanel" class="social-form" hidden><label><span data-ui="email">邮箱</span><input id="socialEmail" type="email" placeholder="you@example.com" /></label><button id="sendEmailCode" type="button" data-ui="sendCode">发送验证码</button><label><span data-ui="verificationCode">验证码</span><input id="socialOtp" inputmode="numeric" maxlength="8" /></label><button id="verifyEmailCode" type="button" data-ui="signIn">登录</button><button id="githubLogin" type="button"><i data-lucide="github"></i>GitHub</button></div>
+              <div id="squadSetupPanel" class="social-form" hidden><label><span data-ui="createSquadLabel">创建小队</span><input id="squadName" maxlength="48" placeholder="专注恢复小队" data-ui-placeholder="squadNamePlaceholder" /></label><button id="createSquad" type="button" data-ui="create">创建</button><label><span data-ui="inviteCode">邀请码</span><input id="squadInviteCode" maxlength="8" placeholder="8 位邀请码" data-ui-placeholder="invitePlaceholder" /></label><button id="joinSquad" type="button" data-ui="join">加入</button></div>
+              <div id="squadMemberPanel" class="member-panel" hidden><header><div><span>ACTIVE SQUAD</span><h3 id="activeSquadName">-</h3></div><code id="activeSquadCode"></code></header><div id="squadMembers"></div><button id="signOutSocial" type="button" data-ui="signOut">退出云端账号</button></div>
+              <p id="socialMessage" class="message"></p></section>
+            <aside class="squad-score"><span data-ui="yourWeeklyScore">你的本周平衡分</span><strong id="socialWeeklyScore">0</strong><small>/500</small><div class="score-rule"><i></i></div><p data-ui="scoreRule">取本周最高 5 个有效日，避免用过劳换排名。</p></aside>
+          </div>
+          <section class="privacy-grid"><article><i data-lucide="shield-check"></i><h3 data-ui="localFirst">本地优先</h3><p data-ui="localFirstBody">不登录也能使用全部计时、遮罩和个人分析。</p></article><article><i data-lucide="users-round"></i><h3 data-ui="smallSquad">小队而非广场</h3><p data-ui="smallSquadBody">没有公开动态和陌生人私信，降低干扰与审核风险。</p></article><article><i data-lucide="heart-pulse"></i><h3 data-ui="healthyRank">健康排名</h3><p data-ui="healthyRankBody">休息完成率与无绕过记录和专注轮次同样重要。</p></article></section>
+        </section>
 
-          <section class="armory-grid">
-            <div class="armory-group">
-              <h2 id="trainingPresetsTitle">训练套餐</h2>
-              <div class="fields three">
-                <label id="presetShortMinutesLabel">短训分钟<input name="presetShortMinutes" type="number" min="1" max="240" /></label>
-                <label id="presetMediumMinutesLabel">标准分钟<input name="presetMediumMinutes" type="number" min="1" max="240" /></label>
-                <label id="presetLongMinutesLabel">深度分钟<input name="presetLongMinutes" type="number" min="1" max="240" /></label>
-              </div>
-              <h2 id="manualTimerTitle">手动计时</h2>
-              <div class="fields four">
-                <label id="focusMinutesLabel">专注分钟<input name="focusMinutes" type="number" min="1" max="240" /></label>
-                <label id="shortBreakMinutesLabel">短休分钟<input name="shortBreakMinutes" type="number" min="1" max="120" /></label>
-                <label id="longBreakMinutesLabel">长休分钟<input name="longBreakMinutes" type="number" min="1" max="240" /></label>
-                <label id="longBreakEveryLabel">长休间隔<input name="longBreakEvery" type="number" min="1" max="12" /></label>
-              </div>
-            </div>
-
-            <div class="armory-group">
-              <h2 id="overlayEngineTitle">遮罩引擎</h2>
-              <div id="packList" class="pack-list"></div>
-              <label class="check-row">
-                <input id="enableCustomVideo" type="checkbox" />
-                <span id="customVideoLabel">启用自定义视频遮罩</span>
-              </label>
-              <label id="videoUrlLabel">视频直链<input name="videoUrl" type="url" placeholder="https://example.com/rest.webm" /></label>
-              <div class="fields two">
-                <label id="accentColorLabel">主色<input name="accentColor" type="color" /></label>
-                <label id="intensityLabel">遮罩强度
-                  <select name="intensity">
-                    <option value="hard">狠</option>
-                    <option value="normal">标准</option>
-                    <option value="light">轻</option>
-                  </select>
-                </label>
-              </div>
-              <label id="customWarningsLabel">自定义警告语<textarea name="customWarningLines" rows="3" placeholder="每行一句"></textarea></label>
-              <label class="check-row"><input name="soundEnabled" type="checkbox" /> <span id="soundEnabledLabel">启用音效</span></label>
-            </div>
-
-            <div class="armory-group">
-              <h2 id="personaRulesTitle">角色与约束</h2>
-              <label id="languageLabel">界面语言
-                <select name="language">
-                  <option value="zh-CN">中文</option>
-                  <option value="en-US">English</option>
-                </select>
-              </label>
-              <label id="visualModeLabel">视觉模式
-                <select name="visualMode">
-                  <option value="dark-training-chamber">暗黑训练舱</option>
-                  <option value="red-alert-hud">红色警戒 HUD</option>
-                </select>
-              </label>
-              <div class="fields two">
-                <label id="pauseLimitLabel">每日暂停/延长上限<input name="pauseLimitPerDay" type="number" min="0" max="20" /></label>
-                <label id="bypassPasswordLabel">设置/更新绕过密码<input name="bypassPasswordPlain" type="password" placeholder="留空则不修改" /></label>
-              </div>
-              <label class="check-row"><input name="startupEnabled" type="checkbox" /> <span id="startupLabel">开机自启动</span></label>
-              <button id="saveSettings" class="primary" type="submit">保存调校</button>
-            </div>
-          </section>
-        </details>
-      </form>
-    </main>
+        <section class="route-view scroll-view" data-route="armory" aria-label="装备室">
+          <div class="view-heading"><div><span>CONTROL ROOM</span><h1 data-ui="armoryTitle">装备室</h1><p data-ui="armorySubtitle">套餐、遮罩、角色与约束集中管理。</p></div><button id="saveSettingsTop" class="primary-action" type="button"><i data-lucide="save"></i><span data-ui="save">保存设置</span></button></div>
+          <form id="settingsForm" class="settings-layout">
+            <section class="settings-band"><header><i data-lucide="timer-reset"></i><div><h2 data-ui="timerSettings">计时套餐</h2><p data-ui="timerSettingsHint">为不同精力状态准备三档节奏。</p></div></header><div class="settings-fields cols-4"><label><span data-ui="presetShortMinutes">短训分钟</span><input name="presetShortMinutes" type="number" min="1" max="240" /></label><label><span data-ui="presetMediumMinutes">标准分钟</span><input name="presetMediumMinutes" type="number" min="1" max="240" /></label><label><span data-ui="presetLongMinutes">深度分钟</span><input name="presetLongMinutes" type="number" min="1" max="240" /></label><label><span data-ui="dailyGoal">每日专注目标</span><input name="dailyFocusGoalMinutes" type="number" min="20" max="720" /></label></div><details id="advancedSettings"><summary data-ui="advancedTimer">高级计时参数</summary><div class="settings-fields cols-4"><label><span data-ui="manualFocusMinutes">手动专注分钟</span><input name="focusMinutes" type="number" min="1" max="240" /></label><label><span data-ui="shortBreakMinutes">短休分钟</span><input name="shortBreakMinutes" type="number" min="1" max="120" /></label><label><span data-ui="longBreakMinutes">长休分钟</span><input name="longBreakMinutes" type="number" min="1" max="240" /></label><label><span data-ui="longBreakEvery">长休间隔</span><input name="longBreakEvery" type="number" min="1" max="12" /></label></div></details></section>
+            <section class="settings-band"><header><i data-lucide="layers-3"></i><div><h2 data-ui="overlayEngine">遮罩引擎</h2><p data-ui="overlayHint">选择休息时随机出现的强制恢复场景。</p></div></header><div id="packList" class="pack-list"></div><label class="toggle-row"><input id="enableCustomVideo" type="checkbox" /><span data-ui="customVideo">启用自定义视频遮罩</span></label><div class="settings-fields cols-2"><label><span data-ui="videoUrl">视频直链</span><input name="videoUrl" type="url" placeholder="https://example.com/rest.webm" /></label><label><span data-ui="intensity">遮罩强度</span><select name="intensity"><option value="hard" data-ui="intensityHard">强</option><option value="normal" data-ui="intensityNormal">标准</option><option value="light" data-ui="intensityLight">轻</option></select></label><label><span data-ui="accentColor">主色</span><input name="accentColor" type="color" /></label><label class="toggle-row compact"><input name="soundEnabled" type="checkbox" /><span data-ui="soundEnabled">启用音效</span></label></div><label><span data-ui="customWarnings">自定义警告语</span><textarea name="customWarningLines" rows="3" placeholder="每行一句" data-ui-placeholder="warningPlaceholder"></textarea></label></section>
+            <section class="settings-band"><header><i data-lucide="user-cog"></i><div><h2 data-ui="personaRules">角色与约束</h2><p data-ui="personaHint">默认模式适合公开场景，成人角色需要主动开启。</p></div></header><div class="settings-fields cols-3"><label><span data-ui="interfaceLanguage">界面语言</span><select name="language"><option value="zh-CN">中文</option><option value="en-US">English</option></select></label><label><span data-ui="personaMode">角色模式</span><select name="personaMode"><option value="safe" data-ui="safePersona">赛博纪律官</option><option value="adult" data-ui="adultPersona">成人角色包</option></select></label><label><span data-ui="visualMode">视觉模式</span><select name="visualMode"><option value="dark-training-chamber" data-ui="darkChamber">暗黑训练舱</option><option value="red-alert-hud" data-ui="redAlertHud">红色警戒 HUD</option></select></label><label><span data-ui="pauseLimit">每日暂停/延长上限</span><input name="pauseLimitPerDay" type="number" min="0" max="20" /></label><label><span data-ui="bypassPassword">设置/更新绕过密码</span><input name="bypassPasswordPlain" type="password" placeholder="留空则不修改" data-ui-placeholder="bypassPlaceholder" /></label><label><span data-ui="workdayEnd">下班提醒时间</span><input name="workdayEndHour" type="number" min="0" max="23" /></label></div><div class="toggle-stack"><label class="toggle-row"><input name="reduceMotion" type="checkbox" /><span data-ui="reduceMotion">减少动态效果</span></label><label class="toggle-row"><input name="startupEnabled" type="checkbox" /><span data-ui="startup">开机自动启动</span></label><label class="toggle-row"><input name="syncSummaries" type="checkbox" /><span data-ui="syncSummaries">登录后同步每日汇总</span></label></div></section>
+            <div class="settings-footer"><p id="settingsMessage" class="message"></p><button id="saveSettings" class="primary-action" type="submit"><i data-lucide="save"></i><span data-ui="save">保存设置</span></button></div>
+          </form>
+        </section>
+      </main>
+    </div>
+    <dialog id="onboardingDialog" class="onboarding-dialog">
+      <div class="onboarding-copy"><span>DOMODORO INITIALIZE</span><h1 data-ui="onboardingTitle">你不是需要更拼命，你需要准时停下。</h1><p data-ui="onboardingBody">选择一套节奏。专注结束前一分钟会提醒，时间到后进入强制恢复。</p></div>
+      <div class="onboarding-options">
+        <label><span data-ui="defaultIntensity">默认强度</span><select id="onboardingIntensity"><option value="normal" data-ui="normalConstraint">标准约束</option><option value="hard" data-ui="hardConstraint">强制约束</option><option value="light" data-ui="lightConstraint">温和提醒</option></select></label>
+        <label><span data-ui="personaMode">角色模式</span><select id="onboardingPersona"><option value="safe" data-ui="safePersona">赛博纪律官</option><option value="adult" data-ui="adultPersona">成人角色包</option></select></label>
+        <label><span data-ui="dailyGoal">每日专注目标</span><input id="onboardingGoal" type="number" min="20" max="720" value="160" /></label>
+      </div>
+      <label id="adultConfirmRow" class="toggle-row" hidden><input id="adultConfirm" type="checkbox" /><span data-ui="adultConfirm">我已年满 18 岁，并主动启用成人视觉包</span></label>
+      <div class="onboarding-footer"><small data-ui="privateOnboarding">所有详细记录默认只保存在本机。</small><button id="completeOnboarding" class="primary-action" type="button" data-ui="enterCommand">进入纪律中枢</button></div>
+      <p id="onboardingMessage" class="message error"></p>
+    </dialog>
+    <script src="../../node_modules/chart.js/dist/chart.umd.js"></script>
+    <script src="../../node_modules/lucide/dist/umd/lucide.js"></script>
     <script src="./renderer.js"></script>
   </body>
 </html>

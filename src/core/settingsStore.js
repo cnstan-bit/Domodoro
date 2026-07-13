@@ -43,11 +43,29 @@ const DEFAULT_SETTINGS = Object.freeze({
   persona: {
     selectedPersonaId: 'discipline-officer',
     visualMode: 'dark-training-chamber',
-    rewardScore: 0
+    rewardScore: 0,
+    personaMode: 'safe'
+  },
+  ui: {
+    reduceMotion: false,
+    lastRoute: 'focus'
+  },
+  analytics: {
+    dailyFocusGoalMinutes: 160,
+    weeklyBalancedDaysGoal: 5,
+    workdayEndHour: 20
+  },
+  social: {
+    enabled: false,
+    displayName: '',
+    squadId: '',
+    syncSummaries: true,
+    leaderboardOptIn: true
   },
   app: {
     language: 'zh-CN',
-    startupEnabled: false
+    startupEnabled: false,
+    onboardingComplete: false
   }
 });
 

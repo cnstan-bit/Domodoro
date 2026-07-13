@@ -1,6 +1,6 @@
 {
   "name": "domodoro",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "A dominant Pomodoro timer for forced breaks, bilingual UI, and extensible overlay packs.",
   "main": "src/main/main.js",
   "scripts": {
@@ -50,5 +50,10 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Domodoro"
     }
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.2",
+    "chart.js": "^4.5.1",
+    "lucide": "^1.24.0"
   }
 }

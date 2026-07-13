@@ -1,6 +1,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const HISTORY_VERSION = 2;
+
 function dateKey(now) {
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -20,29 +22,74 @@ function emptyDay(key) {
   };
 }
 
+function normalizeHistory(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  return {
+    version: HISTORY_VERSION,
+    days: source.days && typeof source.days === 'object' ? source.days : {},
+    sessions: Array.isArray(source.sessions) ? source.sessions : []
+  };
+}
+
 function readJson(filePath) {
   try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch (error) {
-    return { days: {} };
+    return normalizeHistory(JSON.parse(fs.readFileSync(filePath, 'utf8')));
+  } catch {
+    return normalizeHistory({});
   }
 }
 
 function writeJson(filePath, value) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(filePath, `${JSON.stringify(normalizeHistory(value), null, 2)}\n`, 'utf8');
 }
 
 function createHistoryStore(dataDir, nowProvider = () => new Date()) {
   const historyPath = path.join(dataDir, 'history.json');
 
-  function mutateToday(mutator) {
+  function mutate(mutator) {
     const history = readJson(historyPath);
-    const key = dateKey(nowProvider());
-    history.days[key] = history.days[key] || emptyDay(key);
-    mutator(history.days[key]);
+    const result = mutator(history);
     writeJson(historyPath, history);
+    return result;
+  }
+
+  function ensureDay(history, key = dateKey(nowProvider())) {
+    history.days[key] = { ...emptyDay(key), ...(history.days[key] || {}) };
+    if (!Array.isArray(history.days[key].bypasses)) history.days[key].bypasses = [];
     return history.days[key];
+  }
+
+  function findSession(history, sessionId) {
+    if (!sessionId) return null;
+    return history.sessions.find((session) => session.id === sessionId) || null;
+  }
+
+  function ensureSession(history, payload = {}) {
+    const sessionId = payload.sessionId || payload.id;
+    if (!sessionId) return null;
+    let session = findSession(history, sessionId);
+    if (!session) {
+      session = {
+        id: sessionId,
+        date: payload.date || dateKey(nowProvider()),
+        startedAt: payload.startedAt || nowProvider().toISOString(),
+        endedAt: null,
+        presetId: payload.presetId || '',
+        taskLabel: payload.taskLabel || '',
+        taskCategory: payload.taskCategory || 'other',
+        plannedFocusMinutes: Number(payload.plannedFocusMinutes || payload.minutes || 0),
+        actualFocusMinutes: 0,
+        actualBreakMinutes: 0,
+        focusCompleted: false,
+        breakCompleted: false,
+        bypassed: false,
+        pauseCount: 0,
+        outcome: ''
+      };
+      history.sessions.push(session);
+    }
+    return session;
   }
 
   return {
@@ -53,40 +100,104 @@ function createHistoryStore(dataDir, nowProvider = () => new Date()) {
     getToday() {
       const history = readJson(historyPath);
       const key = dateKey(nowProvider());
-      return history.days[key] || emptyDay(key);
+      return { ...emptyDay(key), ...(history.days[key] || {}) };
     },
-    recordFocusComplete({ minutes }) {
-      return mutateToday((today) => {
+    getRange(days = 30) {
+      const history = readJson(historyPath);
+      const result = [];
+      const today = nowProvider();
+      const count = Math.max(1, Math.min(366, Number(days || 30)));
+      for (let offset = count - 1; offset >= 0; offset -= 1) {
+        const date = new Date(today);
+        date.setHours(12, 0, 0, 0);
+        date.setDate(date.getDate() - offset);
+        const key = dateKey(date);
+        result.push({ ...emptyDay(key), ...(history.days[key] || {}) });
+      }
+      return result;
+    },
+    recordSessionStart(payload) {
+      return mutate((history) => ensureSession(history, payload));
+    },
+    recordFocusComplete(payload = {}) {
+      return mutate((history) => {
+        const session = ensureSession(history, payload);
+        if (session?.focusCompleted) return ensureDay(history, session.date);
+        const key = session?.date || dateKey(nowProvider());
+        const today = ensureDay(history, key);
+        const minutes = Number(payload.minutes || session?.plannedFocusMinutes || 0);
         today.focusSessions += 1;
-        today.focusMinutes += Number(minutes || 0);
+        today.focusMinutes += minutes;
+        if (session) {
+          session.focusCompleted = true;
+          session.actualFocusMinutes = minutes;
+          session.endedFocusAt = payload.endedAt || nowProvider().toISOString();
+        }
+        return today;
       });
     },
-    recordBreakComplete({ minutes, packId }) {
-      return mutateToday((today) => {
+    recordBreakComplete(payload = {}) {
+      return mutate((history) => {
+        const session = ensureSession(history, payload);
+        if (session?.breakCompleted) return ensureDay(history, session.date);
+        const key = session?.date || dateKey(nowProvider());
+        const today = ensureDay(history, key);
+        const minutes = Number(payload.minutes || 0);
         today.breaksCompleted += 1;
-        today.breakMinutes += Number(minutes || 0);
-        today.lastBreakPackId = packId || '';
+        today.breakMinutes += minutes;
+        today.lastBreakPackId = payload.packId || '';
+        if (session) {
+          session.breakCompleted = true;
+          session.actualBreakMinutes += minutes;
+          session.breakPackId = payload.packId || '';
+          session.endedAt = payload.endedAt || nowProvider().toISOString();
+        }
+        return today;
       });
     },
-    recordPauseUsed({ reason }) {
-      return mutateToday((today) => {
+    recordPauseUsed(payload = {}) {
+      return mutate((history) => {
+        const session = ensureSession(history, payload);
+        const key = session?.date || dateKey(nowProvider());
+        const today = ensureDay(history, key);
         today.pausesUsed += 1;
-        today.lastPauseReason = reason || '';
+        today.lastPauseReason = payload.reason || '';
+        if (session) session.pauseCount += 1;
+        return today;
       });
     },
-    recordBypass({ reason, packId }) {
-      return mutateToday((today) => {
+    recordBypass(payload = {}) {
+      return mutate((history) => {
+        const session = ensureSession(history, payload);
+        if (session?.bypassed) return ensureDay(history, session.date);
+        const key = session?.date || dateKey(nowProvider());
+        const today = ensureDay(history, key);
         today.bypasses.push({
           at: nowProvider().toISOString(),
-          reason: reason || '',
-          packId: packId || ''
+          reason: payload.reason || '',
+          packId: payload.packId || ''
         });
+        if (session) {
+          session.bypassed = true;
+          session.endedAt = nowProvider().toISOString();
+        }
+        return today;
+      });
+    },
+    recordOutcome({ sessionId, outcome }) {
+      return mutate((history) => {
+        const session = findSession(history, sessionId);
+        if (session) session.outcome = String(outcome || '');
+        return session;
       });
     }
   };
 }
 
 module.exports = {
+  HISTORY_VERSION,
   createHistoryStore,
-  dateKey
+  dateKey,
+  emptyDay,
+  normalizeHistory
 };

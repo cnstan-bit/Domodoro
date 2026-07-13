@@ -114,6 +114,9 @@ const zhCN = Object.freeze({
   },
   tray: {
     status: '状态',
+    open: '打开 Domodoro',
+    insights: '查看分析',
+    armory: '装备室 / 设置',
     start: '开始专注',
     snooze: '延长 5 分钟',
     continue: '继续下一轮',
@@ -257,6 +260,9 @@ const enUS = Object.freeze({
   },
   tray: {
     status: 'Status',
+    open: 'Open Domodoro',
+    insights: 'View Insights',
+    armory: 'Armory / Settings',
     start: 'Start Focus',
     snooze: 'Delay 5 Minutes',
     continue: 'Next Round',

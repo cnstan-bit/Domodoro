@@ -42,6 +42,8 @@ test('saves current form settings before starting focus', async () => {
     '#settingsForm': form,
     '#startFocus': new FakeElement(),
     '#snoozeFocus': new FakeElement(),
+    '#taskLabel': new FakeElement(),
+    '#taskCategory': new FakeElement(),
     '#actionMessage': new FakeElement(),
     '#phaseLabel': new FakeElement(),
     '#timeLeft': new FakeElement(),
@@ -111,7 +113,7 @@ test('saves current form settings before starting focus', async () => {
   ]);
 });
 
-test('saves current settings before starting a preset', async () => {
+test('selects a preset, then saves settings before starting it', async () => {
   const form = new FakeElement();
   form.focusMinutes = { value: '7' };
   form.shortBreakMinutes = { value: '1' };
@@ -130,6 +132,8 @@ test('saves current settings before starting a preset', async () => {
     '#settingsForm': form,
     '#startFocus': new FakeElement(),
     '#snoozeFocus': new FakeElement(),
+    '#taskLabel': new FakeElement(),
+    '#taskCategory': new FakeElement(),
     '#actionMessage': new FakeElement(),
     '#phaseLabel': new FakeElement(),
     '#timeLeft': new FakeElement(),
@@ -205,8 +209,21 @@ test('saves current settings before starting a preset', async () => {
 
   await presetButton.listeners.click({ currentTarget: presetButton });
 
+  assert.deepEqual(calls, []);
+  await elements['#startFocus'].listeners.click();
+
   assert.deepEqual(calls, [
     ['saveSettings', 'long'],
     ['startPreset', 'long']
   ]);
+
+  vm.runInContext("renderState({ phase: 'focus', remainingMs: 60000, focusMinutes: 20, isBreakActive: false, isDecisionActive: false, personaStage: { mode: 'training', label: 'Training' }, persona: { assets: { training: 'discipline-officer-training.png' } } })", context);
+  assert.equal(presetButton.disabled, true);
+  assert.equal(elements['#taskLabel'].disabled, true);
+  assert.equal(elements['#taskCategory'].disabled, true);
+
+  vm.runInContext("renderState({ phase: 'idle', remainingMs: 0, isBreakActive: false, isDecisionActive: false, personaStage: { mode: 'standby', label: 'Standby' }, persona: { assets: { standby: 'discipline-officer.png' } } })", context);
+  assert.equal(presetButton.disabled, false);
+  assert.equal(elements['#taskLabel'].disabled, false);
+  assert.equal(elements['#taskCategory'].disabled, false);
 });

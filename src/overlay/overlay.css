@@ -289,6 +289,29 @@ h1 {
   font-weight: 900;
 }
 
+.recovery-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.recovery-steps li {
+  min-height: 48px;
+  padding: 10px;
+  border: 1px solid rgba(244, 247, 251, 0.14);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.recovery-steps li.active {
+  border-color: #4fbf9f;
+  color: var(--ice);
+  background: rgba(79, 191, 159, 0.1);
+}
+
 .progress {
   height: 14px;
   border: 1px solid rgba(244, 247, 251, 0.25);
@@ -317,6 +340,21 @@ h1 {
   border: 1px solid rgba(214, 162, 58, 0.38);
   border-radius: 8px;
   background: rgba(214, 162, 58, 0.08);
+}
+
+.outcome-switch {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.outcome-switch button.selected {
+  border-color: #4fbf9f;
+  color: #bdf7e7;
+  background: rgba(79, 191, 159, 0.12);
 }
 
 .bypass {
