@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.1 - 2026-07-18
+
+- Replaced the app, tray, shortcut, and installer icon with the simplified focus/recovery clock mark.
+- Fixed startup recovery so exiting the app ends the current focus task instead of resuming it later or triggering a forced break.
+
 ## v0.3.0 - 2026-07-13
 
 - Rebuilt the full interface as a bilingual cyber command center with consistent Focus, Insights, Squad, and Armory views.

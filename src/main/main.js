@@ -17,6 +17,7 @@ const { personaForSession, personaStageForPhase, personaUnlockPreview } = requir
 const { overlayRitualForPhase } = require('../core/overlayRitual');
 const { PRE_BREAK_WARNING_MS, shouldOpenPreBreakWarning, shouldResetPreBreakWarning } = require('../core/preBreakWarning');
 const { copyForLanguage, normalizeLanguage } = require('../core/i18n');
+const { planStartupRecovery } = require('../core/startupRecovery');
 const { createSocialService } = require('./socialService');
 
 const FIVE_MINUTES_MS = 5 * 60 * 1000;
@@ -374,6 +375,23 @@ function resetToIdle() {
   broadcastState();
 }
 
+function endFocusForAppExit() {
+  if (timerState.phase !== 'focus') return;
+  if (timerState.sessionId && historyStore) {
+    historyStore.recordSessionInterrupted({
+      sessionId: timerState.sessionId,
+      reason: 'app-exited-during-focus'
+    });
+  }
+  sessionStateStore?.clear();
+  clearInterval(ticker);
+  ticker = null;
+  timerState.phase = 'idle';
+  timerState.startedAt = null;
+  timerState.endsAt = null;
+  timerState.sessionId = null;
+}
+
 function beginFocus({ focusMinutes, selectedPresetId = timerState.selectedPresetId, context = {} }) {
   if (isOverlayBlockingPhase()) return { ok: false, error: currentCopy().errors.finishCurrentBreak };
 
@@ -692,7 +710,18 @@ app.whenReady().then(() => {
     configPath: path.join(app.getAppPath(), 'src/config/social-config.json')
   });
   if (pendingAuthCallback) socialService.handleAuthCallback(pendingAuthCallback).catch(() => {});
-  Object.assign(timerState, sessionStateStore.load() || {});
+  const startupRecovery = planStartupRecovery(sessionStateStore.load());
+  if (startupRecovery.action === 'resume') {
+    Object.assign(timerState, startupRecovery.state);
+  } else {
+    if (startupRecovery.sessionId) {
+      historyStore.recordSessionInterrupted({
+        sessionId: startupRecovery.sessionId,
+        reason: startupRecovery.reason
+      });
+    }
+    sessionStateStore.clear();
+  }
   setStartup(settingsStore.load().app.startupEnabled);
   registerIpc();
 
@@ -707,7 +736,6 @@ app.whenReady().then(() => {
 
   if (timerState.phase === 'focus') {
     startTicker();
-    if (remainingMs() <= 0) tick();
   } else if (isOverlayBlockingPhase()) {
     const settings = settingsStore.load();
     const packs = loadPacks(settings);
@@ -725,7 +753,6 @@ app.whenReady().then(() => {
     createOverlayWindows(currentOverlayPayload);
     if (isBreakPhase()) {
       startTicker();
-      if (remainingMs() <= 0) tick();
     } else {
       broadcastState();
     }
@@ -735,7 +762,11 @@ app.whenReady().then(() => {
 });
 
 app.on('before-quit', (event) => {
-  if (isOverlayBlockingPhase() && !isQuitting) event.preventDefault();
+  if (isOverlayBlockingPhase() && !isQuitting) {
+    event.preventDefault();
+    return;
+  }
+  endFocusForAppExit();
 });
 
 app.on('window-all-closed', () => {});

@@ -426,7 +426,7 @@ function setMessage(text, isError = false, selector = '#actionMessage') {
 
 async function refresh() {
   appData = await window.breaklock.getInit();
-  setText('#appVersion', `V${appData.appVersion || '0.3.0'}`);
+  setText('#appVersion', `V${appData.appVersion || '0.3.1'}`);
   selectedPresetId = appData.settings?.timer?.selectedPresetId || selectedPresetId;
   applyInterfaceCopy();
   hydrateSettings();

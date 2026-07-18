@@ -190,6 +190,17 @@ function createHistoryStore(dataDir, nowProvider = () => new Date()) {
         if (session) session.outcome = String(outcome || '');
         return session;
       });
+    },
+    recordSessionInterrupted({ sessionId, reason = 'expired-on-startup' } = {}) {
+      return mutate((history) => {
+        const session = findSession(history, sessionId);
+        if (session && !session.endedAt) {
+          session.endedAt = nowProvider().toISOString();
+          session.interrupted = true;
+          session.interruptionReason = String(reason || 'expired-on-startup');
+        }
+        return session;
+      });
     }
   };
 }

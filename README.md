@@ -1,5 +1,9 @@
 # Domodoro | 调教官式强制休息番茄钟
 
+<p align="center">
+  <img src="src/assets/breaklock-icon.png" width="144" alt="Domodoro focus and recovery clock icon">
+</p>
+
 ![Domodoro poster](docs/assets/domodoro-poster.png)
 
 ![Domodoro cyber command interface](docs/assets/domodoro-cyber-hud.png)
@@ -8,7 +12,7 @@
 
 **中文：** Domodoro 是一款 Windows 优先的调教官式番茄钟，用全屏置顶遮罩和角色化反馈强制打断过度专注，帮助你按时休息、避免疲劳循环。
 
-**Current release / 当前版本：** `v0.3.0`
+**Current release / 当前版本：** `v0.3.1`
 
 ## Project Title / 项目标题
 

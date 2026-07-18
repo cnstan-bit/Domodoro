@@ -46,3 +46,18 @@ test('migrates legacy history and records a session idempotently', () => {
   assert.equal(history.sessions[0].focusCompleted, true);
   assert.equal(history.sessions[0].breakCompleted, true);
 });
+
+test('marks an expired startup session as interrupted without awarding focus', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'breaklock-history-'));
+  const store = createHistoryStore(dir, () => new Date('2026-07-18T09:00:00+08:00'));
+
+  store.recordSessionStart({ sessionId: 'stale-session', minutes: 40 });
+  store.recordSessionInterrupted({ sessionId: 'stale-session', reason: 'expired-focus' });
+
+  const history = store.load();
+  const session = history.sessions[0];
+  assert.equal(session.focusCompleted, false);
+  assert.equal(session.interrupted, true);
+  assert.equal(session.interruptionReason, 'expired-focus');
+  assert.equal(store.getToday().focusSessions, 0);
+});
