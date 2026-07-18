@@ -1,123 +1,121 @@
-# Domodoro | 调教官式强制休息番茄钟
+# Domodoro
 
 <p align="center">
-  <img src="src/assets/breaklock-icon.png" width="144" alt="Domodoro focus and recovery clock icon">
+  <img src="src/assets/breaklock-icon.png" width="144" alt="Domodoro app icon">
+</p>
+
+<p align="center">
+  <strong>An enforced-break Pomodoro timer for Windows.</strong><br>
+  Stop overfocus before it turns into exhaustion.
+</p>
+
+<p align="center">
+  English · <a href="README.zh-CN.md">简体中文</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/cnstan-bit/Domodoro/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/cnstan-bit/Domodoro?style=flat-square"></a>
+  <a href="https://github.com/cnstan-bit/Domodoro/actions/workflows/ci.yml"><img alt="CI status" src="https://img.shields.io/github/actions/workflow/status/cnstan-bit/Domodoro/ci.yml?branch=main&style=flat-square&label=CI"></a>
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/github/license/cnstan-bit/Domodoro?style=flat-square"></a>
+  <img alt="Windows" src="https://img.shields.io/badge/platform-Windows-00a4ef?style=flat-square">
 </p>
 
 ![Domodoro poster](docs/assets/domodoro-poster.png)
 
 ![Domodoro cyber command interface](docs/assets/domodoro-cyber-hud.png)
 
-**English:** Domodoro is a Windows-first dominant Pomodoro timer that interrupts overfocus with full-screen, always-on-top break overlays and persona-driven feedback.
+## Why Domodoro
 
-**中文：** Domodoro 是一款 Windows 优先的调教官式番茄钟，用全屏置顶遮罩和角色化反馈强制打断过度专注，帮助你按时休息、避免疲劳循环。
+Most focus timers ask you to notice a small notification and voluntarily stop. That is easy to ignore when you are hyperfocused.
 
-**Current release / 当前版本：** `v0.3.1`
+Domodoro takes a stronger approach. It gives you a one-minute visual warning, then opens a full-screen, always-on-top recovery overlay when focus time ends. The timer remains simple; the break experience is expressive, configurable, and extensible through Overlay Packs.
 
-## Project Title / 项目标题
+Domodoro is designed for people who lose track of time while working, including ADHD-friendly workflows. It is a behavioral interruption tool, not medical software or a system-level lock.
 
-- **EN:** Domodoro: A Dominant Pomodoro Timer for Forced Breaks
-- **ZH:** Domodoro：调教官式强制休息番茄钟
+## How It Works
 
-## Short Description / 简介
+1. Choose a 20, 40, or 60 minute focus preset.
+2. Optionally record the task you intend to finish.
+3. Receive a visible warning during the final minute.
+4. When focus ends, Domodoro opens a full-screen recovery overlay on every display.
+5. When the break ends, choose to continue, finish for the day, or recover for five more minutes.
 
-- **EN:** A dark, gamified focus timer for ADHD-friendly work loops, featuring bilingual UI, focus presets, local stats, emergency bypass, and extensible Overlay Packs.
-- **ZH:** 一个暗黑游戏化的专注计时器，适合容易过度专注的工作流；支持中英界面、三档专注套餐、本地统计、紧急绕过和可扩展遮罩包。
+Closing the application ends the active focus task. Reopening Domodoro starts from idle instead of silently resuming an old task. Active break enforcement remains protected against ordinary window closing.
 
 ## Features
 
-- Windows tray-first Pomodoro timer.
-- Chinese / English interface switch.
-- Trainer-style focus presets: 20 / 40 / 60 minutes.
-- One-minute visual warning before forced break.
-- Full-screen always-on-top break overlays across displays.
-- Post-break decision gate: continue, finish the day, or recover 5 more minutes.
-- Random Overlay Packs per break.
-- Built-in CSS scene packs.
-- Custom video overlay via local file URL or HTTPS direct `.mp4`, `.webm`, `.mov`.
-- Emergency bypass with password and required reason.
-- Daily pause/snooze limit.
-- Local-only settings and history.
-- Optional startup on login.
-- Crash-safe timer recovery after restart or sleep.
-- 7-day and 30-day focus/recovery analytics.
-- Privacy-first squad scoring and weekly share cards.
+### Focus and recovery
+
+- Three focus presets: 20, 40, and 60 minutes.
+- Configurable short breaks, long breaks, and long-break interval.
+- One-minute pre-break warning with persona artwork.
+- Full-screen, always-on-top recovery overlays across multiple displays.
+- Post-break decision gate: continue, finish, or extend recovery.
+- Daily limit for focus extensions and additional recovery time.
+- Emergency bypass protected by a password and required reason.
+
+### Overlay Engine
+
+- Random selection from enabled Overlay Packs.
+- Built-in animated CSS scenes.
+- Static image and animated image backgrounds.
+- Local video files and direct HTTPS media links.
+- Automatic fallback when a media overlay fails.
+- Custom accent color, warning lines, sound, and intensity.
+
+### Progress and insights
+
+- Local focus, break, pause, and bypass history.
+- Seven-day and 30-day focus and recovery analytics.
+- Balance scoring that rewards recovery instead of overwork.
+- Persona archive progress and discipline ranks.
+- Weekly share card generation.
+- Optional privacy-first squads with daily summary leaderboards.
+
+### Windows experience
+
+- Tray-first Electron application.
+- Chinese and English interface switch.
+- State-aware tray actions.
+- Optional launch at login, disabled by default.
+- Installer and portable archive builds.
+- Reduced-motion setting.
 
 ## Download
 
-Windows builds are published on the GitHub Releases page.
+Download the latest Windows build from [GitHub Releases](https://github.com/cnstan-bit/Domodoro/releases/latest):
 
-- Installer: `Domodoro Setup <version>.exe`
-- Portable archive: `Domodoro-<version>-win.zip`
+- `Domodoro Setup <version>.exe`: standard installer.
+- `Domodoro-<version>-win.zip`: portable application archive.
 
-If no release is available yet, run from source with the commands below.
+Windows may show a SmartScreen warning because community builds are not currently signed with a commercial code-signing certificate. Review the source and release workflow before running the application if this concerns you.
 
-## 功能亮点
+## Run From Source
 
-- Windows 托盘番茄钟。
-- 中英文界面切换。
-- 调教官风格三档专注套餐：20 / 40 / 60 分钟。
-- 强制休息前 1 分钟可视化提醒。
-- 多屏全屏置顶休息遮罩。
-- 休息结束后可选择继续、收工或再休息 5 分钟。
-- 每次休息随机抽取 Overlay Pack。
-- 内置 CSS 动画遮罩主题。
-- 支持本地视频或 HTTPS 视频直链遮罩。
-- 紧急绕过需要密码和原因记录。
-- 每日暂停/延长次数限制。
-- 设置和历史只保存在本地。
-- 支持开机自启动，默认关闭。
+Requirements:
 
-## 下载
+- Windows
+- Node.js 22 or newer
+- npm
 
-Windows 版本会发布在 GitHub Releases 页面：
-
-- 安装包：`Domodoro Setup <version>.exe`
-- 便携压缩包：`Domodoro-<version>-win.zip`
-
-如果暂时没有 Release，可以先按下面的本地运行方式启动。
-
-## Run Locally
-
-```bash
+```powershell
+git clone https://github.com/cnstan-bit/Domodoro.git
+cd Domodoro
 npm install
 npm start
 ```
 
-## Build Windows App
+## Build a Windows Package
 
-```bash
+```powershell
 npm run dist
 ```
 
-Build artifacts are written to `release/`.
+The installer, portable archive, and unpacked application are written to `release/`.
 
-## Optional Squad Backend
+## Overlay Pack Development
 
-Domodoro works fully offline. To enable email/GitHub sign-in and private squad leaderboards:
-
-1. Create a Supabase project and run `supabase/migrations/001_social.sql`.
-2. Copy `src/config/social-config.example.json` to `src/config/social-config.json`.
-3. Add the project URL and public anon key, then rebuild the app.
-4. Add `domodoro://auth/callback` to the Supabase redirect allow list and enable GitHub OAuth if required.
-
-Only daily summaries are synced. Task labels and bypass reasons stay local.
-
-## Test
-
-```bash
-npm test
-```
-
-## Documentation
-
-- [Overlay Pack Guide](docs/OVERLAY_PACKS.md)
-- [Roadmap](docs/ROADMAP.md)
-- [Squad Backend](docs/SOCIAL.md)
-
-## Overlay Pack Interface
-
-Each pack lives in `src/overlays/<pack-id>/overlay-pack.json`.
+Each pack lives in `src/overlays/<pack-id>/` and contains an `overlay-pack.json` manifest:
 
 ```json
 {
@@ -131,20 +129,79 @@ Each pack lives in `src/overlays/<pack-id>/overlay-pack.json`.
 }
 ```
 
-Supported `type` values:
+Supported types:
 
-- `css-scene`
-- `video`
-- `image`
+| Type | Purpose |
+| --- | --- |
+| `css-scene` | Built-in HTML and CSS animation theme |
+| `image` | Static image or animated image background |
+| `video` | Local video or direct HTTPS media file |
 
-Remote webpages, iframes, YouTube pages, and Bilibili pages are intentionally unsupported. Video overlays must be local `file://` media or HTTPS direct media links.
+Remote webpages, iframes, arbitrary third-party JavaScript, YouTube pages, and Bilibili pages are intentionally unsupported. Video sources must use `file://` or direct HTTPS `.mp4`, `.webm`, or `.mov` media URLs.
 
-## Data & Limits
+See the [Overlay Pack Guide](docs/OVERLAY_PACKS.md) for the full manifest and testing workflow.
 
-Domodoro stores `settings.json` and `history.json` in Electron's `userData` directory. No cloud sync is included.
+## Data and Privacy
 
-Domodoro is a behavioral interrupt, not a system-level lock. It does not prevent Task Manager or system-level process termination.
+Domodoro works offline by default. On Windows, local application data is normally stored under `%APPDATA%\domodoro\`.
+
+| File | Contents |
+| --- | --- |
+| `settings.json` | Timer, overlay, persona, and interface settings |
+| `history.json` | Completed focus and recovery history, pauses, and bypass records |
+| `session-state.json` | Temporary state used for active break enforcement |
+| `social-session.dat` | Optional encrypted social sign-in session |
+
+Detailed task labels, bypass reasons, exact timestamps, overlay choices, and persona choices stay local. When optional squads are enabled, only daily summary metrics are synced. See [Squad Backend](docs/SOCIAL.md) for the exact privacy boundary.
+
+## Security Model and Limits
+
+- Renderer windows use context isolation, sandboxing, and disabled Node integration.
+- Domodoro does not load remote webpages inside overlays.
+- Social authentication storage uses Electron `safeStorage` when Windows encryption is available.
+- Emergency bypass is recorded locally.
+- Domodoro is not a system-level lock and cannot prevent Task Manager, rebooting, or process termination.
+- The application is not a substitute for medical advice, diagnosis, or treatment.
+
+## Project Structure
+
+```text
+src/main/       Electron lifecycle, windows, tray, and IPC
+src/core/       Timer, history, analytics, rewards, and overlay rules
+src/renderer/   Main command-center interface
+src/overlay/    Full-screen recovery overlay renderer
+src/warning/    One-minute pre-break warning
+src/overlays/   Built-in Overlay Packs
+supabase/       Optional squad backend migration
+test/           Node test suite
+```
+
+## Development Commands
+
+| Command | Purpose |
+| --- | --- |
+| `npm start` | Run Domodoro locally |
+| `npm test` | Run the Node test suite |
+| `npm run check` | Run project checks |
+| `npm run build` | Build an unpacked application |
+| `npm run dist` | Build Windows installer and portable archive |
+
+## Contributing
+
+Bug reports, accessibility reviews, translations, and new Overlay Packs are welcome.
+
+1. Read [CONTRIBUTING.md](CONTRIBUTING.md).
+2. Open a [bug report](https://github.com/cnstan-bit/Domodoro/issues/new?template=bug_report.yml) or [feature request](https://github.com/cnstan-bit/Domodoro/issues/new?template=feature_request.yml).
+3. Keep timer behavior in `src/core` and cover behavior changes with tests.
+4. Add new break experiences through Overlay Packs instead of hard-coding one-off renderer logic.
+
+## Documentation
+
+- [Overlay Pack Guide](docs/OVERLAY_PACKS.md)
+- [Squad Backend](docs/SOCIAL.md)
+- [Roadmap](docs/ROADMAP.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 
-MIT
+Domodoro is available under the [MIT License](LICENSE).

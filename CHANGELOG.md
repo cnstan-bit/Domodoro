@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed persona archive progress overflowing after its unlock threshold; completed archives now show a capped `160/160` unlocked state.
+- Rebuilt the repository documentation as separate English and Simplified Chinese READMEs with clearer installation, privacy, architecture, and contribution guidance.
 
 ## v0.3.1 - 2026-07-18
 

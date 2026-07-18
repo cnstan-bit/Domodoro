@@ -24,7 +24,7 @@ Domodoro's long-term focus is the enforced-break Overlay Engine: a simple timer 
 
 - Cyber command center UI across Focus, Insights, Squad, and Armory.
 - Task intentions and focus/recovery analytics.
-- Restart-safe sessions and active-preset locking.
+- Focus sessions end cleanly on app exit; active-preset locking prevents mid-session changes.
 - State-aware Windows tray navigation.
 - Optional privacy-first squads and weekly share cards.
 
