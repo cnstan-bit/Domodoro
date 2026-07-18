@@ -26,7 +26,19 @@ test('persona unlock preview is local gamification only', () => {
   assert.equal(preview.id, 'crimson-judge');
   assert.equal(preview.unlocked, false);
   assert.equal(preview.requiredScore, 160);
+  assert.equal(preview.currentScore, 75);
+  assert.equal(preview.remainingScore, 85);
   assert.equal(preview.progress, 47);
+});
+
+test('persona unlock preview caps completed progress instead of overflowing', () => {
+  const preview = personaUnlockPreview(240);
+
+  assert.equal(preview.unlocked, true);
+  assert.equal(preview.requiredScore, 160);
+  assert.equal(preview.currentScore, 160);
+  assert.equal(preview.remainingScore, 0);
+  assert.equal(preview.progress, 100);
 });
 
 test('persona asset switches to training form after work starts', () => {

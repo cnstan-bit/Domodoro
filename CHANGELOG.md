@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed persona archive progress overflowing after its unlock threshold; completed archives now show a capped `160/160` unlocked state.
+
 ## v0.3.1 - 2026-07-18
 
 - Replaced the app, tray, shortcut, and installer icon with the simplified focus/recovery clock mark.

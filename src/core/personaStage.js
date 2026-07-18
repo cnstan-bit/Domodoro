@@ -103,13 +103,18 @@ function personaAssetForStage(personaId, mode) {
 function personaUnlockPreview(score) {
   const safeScore = Math.max(0, Number(score || 0));
   const locked = personaRoster.find((persona) => !persona.unlocked) || personaRoster[0];
-  const progress = locked.requiredScore
-    ? Math.min(100, Math.round((safeScore / locked.requiredScore) * 100))
+  const requiredScore = Math.max(0, Number(locked.requiredScore || 0));
+  const currentScore = requiredScore ? Math.min(safeScore, requiredScore) : 0;
+  const progress = requiredScore
+    ? Math.min(100, Math.round((currentScore / requiredScore) * 100))
     : 100;
 
   return {
     ...locked,
-    unlocked: safeScore >= locked.requiredScore,
+    requiredScore,
+    currentScore,
+    remainingScore: Math.max(0, requiredScore - safeScore),
+    unlocked: safeScore >= requiredScore,
     progress
   };
 }

@@ -43,7 +43,7 @@ const zhCN = Object.freeze({
     todayDiscipline: '今日纪律',
     scoreLabel: '纪律积分',
     personaArchive: '角色档案',
-    unlockAvailable: '可解锁',
+    unlockAvailable: '已解锁',
     unlockLocked: '未解锁',
     focusSessions: '完成训练',
     breaksCompleted: '合格休息',

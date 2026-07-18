@@ -13,7 +13,7 @@ const uiText = {
     statusStandby: '训练舱待命', disciplineStamp: '纪律', taskPlaceholder: '例如：完成提案第一版',
     categoryWork: '工作', categoryStudy: '学习', categoryCreative: '创作', categoryAdmin: '杂务', categoryOther: '其他',
     today: '今日状态', balanceScore: '专注与恢复平衡分', focusSessions: '完成轮次', restCompliance: '休息完成率',
-    breaksCompleted: '完成休息', bypasses: '紧急绕过', nextReward: '下一角色档案', viewInsights: '查看完整分析',
+    breaksCompleted: '完成休息', bypasses: '紧急绕过', nextReward: '下一角色档案', nextRewardUnlocked: '角色档案已解锁', viewInsights: '查看完整分析',
     insightsTitle: '专注与恢复分析', insightsSubtitle: '看清什么时候效率最高，也看清什么时候该停。',
     focusTime: '专注时间', averageBalance: '平均平衡分', overfocusRisk: '过度专注风险', trend: '每日趋势',
     trendHint: '红色：专注分钟 · 绿色：休息完成率', weeklyScore: '本周平衡积分', coachSignal: '本周信号',
@@ -48,7 +48,7 @@ const uiText = {
     statusStandby: 'CHAMBER STANDING BY', disciplineStamp: 'DISCIPLINE', taskPlaceholder: 'Example: Finish proposal draft',
     categoryWork: 'Work', categoryStudy: 'Study', categoryCreative: 'Creative', categoryAdmin: 'Admin', categoryOther: 'Other',
     today: 'Today', balanceScore: 'Focus and recovery balance', focusSessions: 'Sessions', restCompliance: 'Break compliance',
-    breaksCompleted: 'Breaks', bypasses: 'Bypasses', nextReward: 'Next persona file', viewInsights: 'View full insights',
+    breaksCompleted: 'Breaks', bypasses: 'Bypasses', nextReward: 'Next persona file', nextRewardUnlocked: 'Persona file unlocked', viewInsights: 'View full insights',
     insightsTitle: 'Focus and recovery insights', insightsSubtitle: 'See when you work best and when you need to stop.',
     focusTime: 'Focus time', averageBalance: 'Average balance', overfocusRisk: 'Overfocus risk', trend: 'Daily trend',
     trendHint: 'Red: focus minutes · Green: break compliance', weeklyScore: 'Weekly balance score', coachSignal: 'Weekly signal',
@@ -219,10 +219,18 @@ function renderToday() {
   const balanceBar = $('#todayBalanceBar');
   if (balanceBar) balanceBar.style.width = `${balance}%`;
   const unlock = appData?.unlockPreview || {};
+  const unlockRequired = Math.max(0, Number(unlock.requiredScore || 160));
+  const unlockCurrent = Math.min(
+    unlockRequired,
+    Math.max(0, Number(unlock.currentScore ?? discipline.score ?? 0))
+  );
+  const unlockStatus = getCopy().renderer?.unlockAvailable || (isEnglish() ? 'Unlocked' : '已解锁');
+  const rewardLabel = uiText[currentLanguage()] || uiText['zh-CN'];
+  setText('[data-ui="nextReward"]', unlock.unlocked ? rewardLabel.nextRewardUnlocked : rewardLabel.nextReward);
   setText('#unlockPersonaName', personaName(unlock));
-  setText('#unlockPersonaScore', `${discipline.score || 0}/${unlock.requiredScore || 160}`);
+  setText('#unlockPersonaScore', `${unlockCurrent}/${unlockRequired}${unlock.unlocked ? ` · ${unlockStatus}` : ''}`);
   const unlockProgress = $('#unlockProgress');
-  if (unlockProgress) unlockProgress.style.width = `${unlock.progress || 0}%`;
+  if (unlockProgress) unlockProgress.style.width = `${unlock.progress ?? 0}%`;
 }
 
 function renderPacks() {
